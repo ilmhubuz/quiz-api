@@ -17,12 +17,12 @@ public sealed class UserProgressService(
         if (currentUser.IsAuthenticated && currentUser.UserId is not null)
         {
             var collectionIds = await collectionRepository.GetAnsweredCollectionIdsByUserIdAsync(currentUser.UserId, cancellationToken);
-            foreach (var collectionId in collectionIds)
-            {
-                var userProgress = await userProgressRepository.GetUserProgressOrDefaultAsync(currentUser.UserId, collectionId, cancellationToken);
-                if (userProgress is not null)
-                    responses.Add(mapper.Map<CollectionProgressResponse>(userProgress));
-            }
+        foreach (var collectionId in collectionIds)
+        {
+            var userProgress = await userProgressRepository.GetUserProgressOrDefaultAsync(currentUser.UserId, collectionId, cancellationToken);
+            if (userProgress is not null)
+                responses.Add(mapper.Map<CollectionProgressResponse>(userProgress));
+        }
         }
         return responses;
     }
