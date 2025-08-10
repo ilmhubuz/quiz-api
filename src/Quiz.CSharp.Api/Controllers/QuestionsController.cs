@@ -1,3 +1,5 @@
+using Quiz.CSharp.Api.Dtos.Question;
+
 namespace Quiz.CSharp.Api.Controllers;
 
 using Microsoft.AspNetCore.Authorization;
@@ -39,5 +41,17 @@ public sealed class QuestionsController(IQuestionService questionService) : Cont
     {
         var questions = await questionService.GetPreviewQuestionsAsync(collectionId, cancellationToken);
         return Ok(new ApiResponse<List<QuestionResponse>>(questions));
+    }
+    
+    [HttpPut("{collectionId}/{questionId}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<IActionResult> UpdateQuestion(
+        [FromRoute] int collectionId,
+        [FromRoute] int questionId,
+        [FromBody] UpdateQuestionDto questionDto,
+        CancellationToken cancellationToken)
+    {
+        await questionService.UpdateQuestionAsync(collectionId, questionId, questionDto, cancellationToken);
+        return Ok();
     }
 } 

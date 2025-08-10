@@ -1,7 +1,6 @@
 namespace Quiz.CSharp.Data.Services;
 
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 using Quiz.CSharp.Data.Entities;
 using Quiz.Shared.Common;
 
@@ -15,6 +14,19 @@ public sealed class CSharpRepository(ICSharpDbContext context) : ICSharpReposito
             .ToListAsync(cancellationToken);
     }
 
+    public async Task UpdateQuestionAsync(Question question,CancellationToken cancellationToken = default)
+    {
+        context.Questions.Update(question);
+        await context.SaveChangesAsync(cancellationToken);
+    }
+    
+    public async Task<Collection?> GetCollectionByIdAsync(int collectionId, CancellationToken cancellationToken = default)
+    {
+        return await context.Collections
+            .FirstOrDefaultAsync(c => c.Id == collectionId && c.IsActive, cancellationToken);
+    }
+
+    
     public async Task<IReadOnlyList<CollectionWithQuestionCount>> GetCollectionsWithQuestionCountAsync(CancellationToken cancellationToken = default)
     {
         return await context.Collections

@@ -1,3 +1,5 @@
+using Quiz.CSharp.Api.Dtos.Question;
+
 namespace Quiz.CSharp.Api.Services;
 
 using Quiz.CSharp.Api.Contracts;
@@ -11,4 +13,7 @@ public interface IQuestionService
         int pageSize,
         CancellationToken cancellationToken = default);
     Task<List<QuestionResponse>> GetPreviewQuestionsAsync(int collectionId, CancellationToken cancellationToken = default);
+
+    Task UpdateQuestionAsync(int collectionId, int questionId, UpdateQuestionDto questionDto,
+        CancellationToken cancellationToken);
 } 

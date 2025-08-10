@@ -1,3 +1,6 @@
+using Quiz.CSharp.Api.Dtos.Question;
+using Quiz.CSharp.Data.Models;
+
 namespace Quiz.CSharp.Api.Mapping;
 
 using AutoMapper;
@@ -65,7 +68,7 @@ public sealed class QuestionProfile : Profile
         public string? Input { get; set; }
         public string? ExpectedOutput { get; set; }
     }
-
+    
     public QuestionProfile()
     {
         CreateMap<Question, QuestionResponse>()
@@ -94,7 +97,54 @@ public sealed class QuestionProfile : Profile
             .ForMember(dest => dest.Option, opt => opt.MapFrom(src => src.Text));
             
         CreateMap<TestCaseData, TestCaseResponse>();
+        
+        CreateMap<UpdateQuestionDto, UpdateQuestion>();
+        
+        CreateMap<UpdateQuestionMetaDataDto, UpdateQuestionMetaData>()
+            .Include<UpdateMcqMetaDataDto, UpdateMcqMetaData>()
+            .Include<UpdateTrueFalseMetaDataDto, UpdateTrueFalseMetaData>()
+            .Include<UpdateFillMetaDataDto, UpdateFillMetaData>()
+            .Include<UpdateErrorSpottingMetaDataDto, UpdateErrorSpottingMetaData>()
+            .Include<UpdateOutputPredictionMetaDataDto, UpdateOutputPredictionMetaData>()
+            .Include<UpdateCodeWritingMetaDataDto, UpdateCodeWritingMetaData>();
+        
+        CreateMap<UpdateMcqMetaDataDto, UpdateMcqMetaData>();
+        CreateMap<UpdateTrueFalseMetaDataDto, UpdateTrueFalseMetaData>();
+        CreateMap<UpdateFillMetaDataDto, UpdateFillMetaData>();
+        CreateMap<UpdateErrorSpottingMetaDataDto, UpdateErrorSpottingMetaData>();
+        CreateMap<UpdateOutputPredictionMetaDataDto, UpdateOutputPredictionMetaData>();
+        CreateMap<UpdateCodeWritingMetaDataDto, UpdateCodeWritingMetaData>();
+        
+        CreateMap<UpdateQuestionMetadataDto, UpdateQuestionMetadata>();
+        CreateMap<UpdateQuestionOptionDto, UpdateQuestionOption>();
+        CreateMap<UpdateTestCaseDto, UpdateTestCase>();
+        
+        
+        CreateMap<UpdateQuestion, Question>()
+            .ForMember(dest => dest.Metadata, opt => opt.MapFrom(src => SerializeMetaData(src.Metadata)));
+        
+        CreateMap<MCQQuestion, UpdateQuestion>()
+            .ForMember(dest => dest.Metadata, opt => opt.MapFrom(src => SerializeMetaData(src.Metadata)));
+
+        CreateMap<TrueFalseQuestion, UpdateQuestion>()
+            .ForMember(dest => dest.Metadata, opt => opt.MapFrom(src => SerializeMetaData(src.Metadata)));
+
+        CreateMap<FillQuestion, UpdateQuestion>()
+            .ForMember(dest => dest.Metadata, opt => opt.MapFrom(src => SerializeMetaData(src.Metadata)));
+
+        CreateMap<ErrorSpottingQuestion, UpdateQuestion>()
+            .ForMember(dest => dest.Metadata, opt => opt.MapFrom(src => SerializeMetaData(src.Metadata)));
+
+        CreateMap<OutputPredictionQuestion, UpdateQuestion>()
+            .ForMember(dest => dest.Metadata, opt => opt.MapFrom(src => SerializeMetaData(src.Metadata)));
+        
+        CreateMap<CodeWritingQuestion, UpdateQuestion>()
+            .ForMember(dest => dest.Metadata, opt => opt.MapFrom(src => SerializeMetaData(src.Metadata)));
+        
     }
+    
+    private static string SerializeMetaData(object metadata) =>
+        JsonSerializer.Serialize(metadata);
 
     private static string GetQuestionType(Question question)
     {

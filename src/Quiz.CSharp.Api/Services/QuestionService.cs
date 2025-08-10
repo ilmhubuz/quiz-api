@@ -1,13 +1,13 @@
+using Microsoft.Extensions.Logging;
+using Quiz.CSharp.Api.Dtos.Question;
+using Quiz.CSharp.Data.Entities;
+using Quiz.CSharp.Data.Models;
+using Quiz.Shared.Exceptions;
+
 namespace Quiz.CSharp.Api.Services;
 
-using AutoMapper;
-using Quiz.CSharp.Api.Contracts;
-using Quiz.CSharp.Data.Entities;
-using Quiz.CSharp.Data.Services;
-using Quiz.Shared.Authentication;
-using Quiz.Shared.Common;
-
 public sealed class QuestionService(
+    ILogger<QuestionService> logger,
     ICSharpRepository repository,
     IMapper mapper,
     ICurrentUser currentUser) : IQuestionService
@@ -57,4 +57,35 @@ public sealed class QuestionService(
         var questions = await repository.GetPreviewQuestionsAsync(collectionId, cancellationToken);
         return mapper.Map<List<QuestionResponse>>(questions);
     }
+
+    public async Task UpdateQuestionAsync(int collectionId, int questionId, UpdateQuestionDto questionDto, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var question = await repository.GetQuestionByIdAsync(questionId, cancellationToken);
+            if (question is null)
+                throw new CustomNotFoundException($"{nameof(Question)} not found.");
+        
+            _ = await repository.GetCollectionByIdAsync(collectionId, cancellationToken)
+                ?? throw new CustomNotFoundException($"{nameof(Collection)} not found.");
+
+            var mappedQuestionModel = mapper.Map<UpdateQuestion>(questionDto);
+
+            mapper.Map(mappedQuestionModel, question);
+            question.UpdatedAt = DateTime.UtcNow;    
+            await repository.UpdateQuestionAsync(question, cancellationToken);
+        }
+        catch (CustomNotFoundException e)
+        {
+            logger.LogError(e, e.Message);
+            throw;
+        }
+        catch (Exception e)
+        {
+            logger.LogError(e, e.Message);
+            throw;
+        }
+
+    }
+
 } 

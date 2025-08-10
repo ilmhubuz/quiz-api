@@ -42,4 +42,7 @@ public interface ICSharpRepository
     Task<List<int>> GetAnsweredCollectionIdsByUserIdAsync(
         string userId,
         CancellationToken cancellationToken = default);
+
+    Task UpdateQuestionAsync(Question question, CancellationToken cancellationToken = default);
+    Task<Collection?> GetCollectionByIdAsync(int collectionId, CancellationToken cancellationToken = default);
 } 
