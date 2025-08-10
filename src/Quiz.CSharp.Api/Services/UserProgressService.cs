@@ -15,14 +15,12 @@ public sealed class UserProgressService(
         var responses = new List<CollectionProgressResponse>();
         if (currentUser.IsAuthenticated && currentUser.UserId is not null)
         {
-            var CollectionIds = await repository.GetAnsweredCollectionIdsByUserIdAsync(currentUser.UserId, cancellationToken);
-            foreach (var collectionId in CollectionIds)
+            var collectionIds = await repository.GetAnsweredCollectionIdsByUserIdAsync(currentUser.UserId, cancellationToken);
+            foreach (var collectionId in collectionIds)
             {
                 var userProgress = await repository.GetUserProgressAsync(currentUser.UserId, collectionId, cancellationToken);
                 if (userProgress is not null)
-                {
                     responses.Add(mapper.Map<CollectionProgressResponse>(userProgress));
-                }
             }
         }
         return responses;
