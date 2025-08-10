@@ -5,14 +5,14 @@ using Quiz.CSharp.Api.Contracts;
 using Quiz.CSharp.Data.Services;
 using Quiz.Shared.Authentication;
 
-public sealed class ProgressService(
+public sealed class UserProgressService(
     ICSharpRepository repository,
     IMapper mapper,
-    ICurrentUser currentUser) : IProgressService
+    ICurrentUser currentUser) : IUserProgressService
 {
-    public async Task<List<UserProgressResponse>> GetUserProgressAsync(CancellationToken cancellationToken = default)
+    public async Task<List<CollectionProgressResponse>> GetUserProgressAsync(CancellationToken cancellationToken = default)
     {
-        var responses = new List<UserProgressResponse>();
+        var responses = new List<CollectionProgressResponse>();
         if (currentUser.IsAuthenticated && currentUser.UserId is not null)
         {
             var CollectionIds = await repository.GetAnsweredCollectionIdsByUserIdAsync(currentUser.UserId, cancellationToken);
@@ -21,7 +21,7 @@ public sealed class ProgressService(
                 var userProgress = await repository.GetUserProgressAsync(currentUser.UserId, collectionId, cancellationToken);
                 if (userProgress is not null)
                 {
-                    responses.Add(mapper.Map<UserProgressResponse>(userProgress));
+                    responses.Add(mapper.Map<CollectionProgressResponse>(userProgress));
                 }
             }
         }

@@ -82,6 +82,7 @@ public sealed class CSharpRepository(ICSharpDbContext context) : ICSharpReposito
     public async Task<UserProgress?> GetUserProgressAsync(string userId, int collectionId, CancellationToken cancellationToken = default)
     {
         return await context.UserProgress
+            .Include(up => up.Collection)
             .FirstOrDefaultAsync(up => up.UserId == userId && up.CollectionId == collectionId, cancellationToken);
     }
 

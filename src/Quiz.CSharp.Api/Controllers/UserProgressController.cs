@@ -5,15 +5,15 @@ using Quiz.CSharp.Api.Services;
 using Quiz.Shared.Contracts;
 
 [ApiController]
-[Route("api/csharp/progress")]
+[Route("api/csharp/user-progress")]
 [Produces("application/json")]
-public sealed class ProgressController(IProgressService progressService) : ControllerBase
+public sealed class UserProgressController(IUserProgressService userProgressService) : ControllerBase
 {
     [HttpGet]
     [ProducesResponseType(typeof(ApiResponse<UserProgressResponse>), 200)]
     public async Task<IActionResult> GetUserProgress(CancellationToken cancellationToken)
     {
-        var userProgress = await progressService.GetUserProgressAsync(cancellationToken);
-        return Ok(new ApiResponse<List<UserProgressResponse>>(userProgress));
+        var userProgress = await userProgressService.GetUserProgressAsync(cancellationToken);
+        return Ok(new ApiResponse<List<CollectionProgressResponse>>(userProgress));
     }
 }
