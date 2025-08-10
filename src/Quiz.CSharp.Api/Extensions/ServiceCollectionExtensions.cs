@@ -22,7 +22,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IQuestionService, QuestionService>();
         services.AddScoped<IResultsService, ResultsService>();
         services.AddScoped<ISubscriptionGuard, SubscriptionGuard>();
-        services.AddScoped<IUserProgressService, UserProgressService>();
+        services.AddScoped<IProgressService, ProgressService>();
 
         return services;
     }
