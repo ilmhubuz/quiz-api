@@ -4,12 +4,12 @@ using Microsoft.AspNetCore.Mvc;
 using Quiz.CSharp.Api.Contracts;
 using Quiz.CSharp.Api.Services;
 using Quiz.Shared.Contracts;
-using Microsoft.AspNetCore.Authorization;
+using Quiz.Infrastructure.Authentication;
 
 [ApiController]
 [Route("api/csharp/user-progress")]
 [Produces("application/json")]
-[Authorize] 
+[RequireSubscription("csharp-quiz")]
 public sealed class UserProgressController(IUserProgressService userProgressService) : ControllerBase
 {
     [HttpGet]
