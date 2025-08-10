@@ -10,6 +10,7 @@ using Quiz.Shared.Common;
 
 public sealed class CollectionManagementService(
     ICSharpRepository repository,
+    IMapper mapper,
     ILogger<CollectionManagementService> logger) : ICollectionManagementService
 {
     public async Task<Result<CreateCollectionResponse>> CreateCollectionWithQuestionsAsync(
@@ -25,16 +26,7 @@ public sealed class CollectionManagementService(
             }
 
             // Create collection entity
-            var collection = new Collection
-            {
-                Code = request.Code,
-                Title = request.Title,
-                Description = request.Description,
-                Icon = request.Icon,
-                SortOrder = request.SortOrder,
-                CreatedAt = DateTime.UtcNow,
-                IsActive = true
-            };
+            var collection = mapper.Map<Collection>(request);
 
             // Save collection first to get the ID
             var createdCollection = await repository.CreateCollectionAsync(collection, cancellationToken);
@@ -58,17 +50,7 @@ public sealed class CollectionManagementService(
             logger.LogInformation("Created collection {Code} with {QuestionCount} questions", 
                 request.Code, questionsCreated);
 
-            var response = new CreateCollectionResponse
-            {
-                Id = createdCollection.Id,
-                Code = createdCollection.Code,
-                Title = createdCollection.Title,
-                Description = createdCollection.Description,
-                Icon = createdCollection.Icon,
-                SortOrder = createdCollection.SortOrder,
-                QuestionsCreated = questionsCreated,
-                CreatedAt = createdCollection.CreatedAt
-            };
+            var response = mapper.Map<CreateCollectionResponse>(createdCollection);
 
             return Result<CreateCollectionResponse>.Success(response);
         }
