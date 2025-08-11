@@ -44,6 +44,7 @@ public sealed class QuestionsController(IQuestionService questionService) : Cont
     }
     
     [HttpPut("{collectionId}/{questionId}")]
+    [Authorize(Policy = "Admin:Write")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<IActionResult> UpdateQuestion(
         [FromRoute] int collectionId,

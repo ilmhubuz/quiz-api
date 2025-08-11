@@ -1,7 +1,6 @@
 using Quiz.CSharp.Api.Extensions;
 using Quiz.CSharp.Data.Extensions;
 using Quiz.Infrastructure.Extensions;
-using Quiz.CSharp.Data;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
