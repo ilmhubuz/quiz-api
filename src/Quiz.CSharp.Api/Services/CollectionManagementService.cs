@@ -35,7 +35,7 @@ public sealed class CollectionManagementService(
             var questionsCreated = 0;
             foreach (var questionRequest in request.Questions)
             {
-                var question = CreateQuestionFromRequest(questionRequest, createdCollection.Id);
+                var question = CreateQuestionFromRequest(questionRequest, createdCollection.Id, mapper);
                 if (question != null)
                 {
                     await repository.CreateQuestionAsync(question, cancellationToken);
@@ -61,7 +61,7 @@ public sealed class CollectionManagementService(
         }
     }
 
-    private static Question? CreateQuestionFromRequest(CreateQuestionRequest request, int collectionId)
+    private static Question? CreateQuestionFromRequest(CreateQuestionRequest request, int collectionId, IMapper mapper)
     {
         var questionType = GetQuestionTypeFromString(request.Type);
         if (questionType == null)
@@ -69,72 +69,12 @@ public sealed class CollectionManagementService(
 
         return questionType.Value switch
         {
-            QuestionType.MCQ => new MCQQuestion
-            {
-                CollectionId = collectionId,
-                Subcategory = request.Subcategory,
-                Difficulty = request.Difficulty,
-                Prompt = request.Prompt,
-                EstimatedTimeMinutes = request.EstimatedTimeMinutes,
-                Metadata = request.Metadata,
-                CreatedAt = DateTime.UtcNow,
-                IsActive = true
-            },
-            QuestionType.TrueFalse => new TrueFalseQuestion
-            {
-                CollectionId = collectionId,
-                Subcategory = request.Subcategory,
-                Difficulty = request.Difficulty,
-                Prompt = request.Prompt,
-                EstimatedTimeMinutes = request.EstimatedTimeMinutes,
-                Metadata = request.Metadata,
-                CreatedAt = DateTime.UtcNow,
-                IsActive = true
-            },
-            QuestionType.Fill => new FillQuestion
-            {
-                CollectionId = collectionId,
-                Subcategory = request.Subcategory,
-                Difficulty = request.Difficulty,
-                Prompt = request.Prompt,
-                EstimatedTimeMinutes = request.EstimatedTimeMinutes,
-                Metadata = request.Metadata,
-                CreatedAt = DateTime.UtcNow,
-                IsActive = true
-            },
-            QuestionType.ErrorSpotting => new ErrorSpottingQuestion
-            {
-                CollectionId = collectionId,
-                Subcategory = request.Subcategory,
-                Difficulty = request.Difficulty,
-                Prompt = request.Prompt,
-                EstimatedTimeMinutes = request.EstimatedTimeMinutes,
-                Metadata = request.Metadata,
-                CreatedAt = DateTime.UtcNow,
-                IsActive = true
-            },
-            QuestionType.OutputPrediction => new OutputPredictionQuestion
-            {
-                CollectionId = collectionId,
-                Subcategory = request.Subcategory,
-                Difficulty = request.Difficulty,
-                Prompt = request.Prompt,
-                EstimatedTimeMinutes = request.EstimatedTimeMinutes,
-                Metadata = request.Metadata,
-                CreatedAt = DateTime.UtcNow,
-                IsActive = true
-            },
-            QuestionType.CodeWriting => new CodeWritingQuestion
-            {
-                CollectionId = collectionId,
-                Subcategory = request.Subcategory,
-                Difficulty = request.Difficulty,
-                Prompt = request.Prompt,
-                EstimatedTimeMinutes = request.EstimatedTimeMinutes,
-                Metadata = request.Metadata,
-                CreatedAt = DateTime.UtcNow,
-                IsActive = true
-            },
+            QuestionType.MCQ => mapper.Map<MCQQuestion>((request, collectionId)),
+            QuestionType.TrueFalse => mapper.Map<TrueFalseQuestion>((request, collectionId)),
+            QuestionType.Fill => mapper.Map<FillQuestion>((request, collectionId)),
+            QuestionType.ErrorSpotting => mapper.Map<ErrorSpottingQuestion>((request, collectionId)),
+            QuestionType.OutputPrediction => mapper.Map<OutputPredictionQuestion>((request, collectionId)),
+            QuestionType.CodeWriting => mapper.Map<CodeWritingQuestion>((request, collectionId)),
             _ => null
         };
     }
