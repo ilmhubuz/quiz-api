@@ -12,11 +12,11 @@ using Quiz.Infrastructure.Authentication;
 [ApiController]
 [Route("api/csharp/questions")]
 [Produces("application/json")]
-[RequireSubscription("csharp-quiz")]
 public sealed class QuestionsController(IQuestionService questionService) : ControllerBase
 {
     [HttpGet]
     [Authorize]
+    [RequireSubscription("csharp-quiz")]
     [ProducesResponseType<PaginatedApiResponse<QuestionResponse>>(StatusCodes.Status200OK)]
     public async Task<IActionResult> GetQuestions(
         [FromQuery] int collectionId,

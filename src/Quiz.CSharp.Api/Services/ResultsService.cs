@@ -113,7 +113,7 @@ public sealed class ResultsService(
 
         foreach (var answer in request.Answers)
         {
-            var question = await repository.GetQuestionByIdAsync(answer.QuestionId, cancellationToken);
+            var question = await repository.GetQuestionSingleOrDefaultAsync(answer.QuestionId, cancellationToken);
             if (question == null)
                 continue;
 

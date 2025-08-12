@@ -20,7 +20,7 @@ public sealed class CSharpRepository(ICSharpDbContext context) : ICSharpReposito
         await context.SaveChangesAsync(cancellationToken);
     }
     
-    public async Task<Collection?> GetCollectionByIdAsync(int collectionId, CancellationToken cancellationToken = default)
+    public async Task<Collection?> GetCollectionSingleOrDefaultAsync(int collectionId, CancellationToken cancellationToken = default)
     {
         return await context.Collections
             .FirstOrDefaultAsync(c => c.Id == collectionId && c.IsActive, cancellationToken);
@@ -70,7 +70,7 @@ public sealed class CSharpRepository(ICSharpDbContext context) : ICSharpReposito
             .ToListAsync(cancellationToken);
     }
 
-    public async Task<Question?> GetQuestionByIdAsync(int questionId, CancellationToken cancellationToken = default)
+    public async Task<Question?> GetQuestionSingleOrDefaultAsync(int questionId, CancellationToken cancellationToken = default)
     {
         return await context.Questions
             .Include(q => q.Collection)

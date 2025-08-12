@@ -60,32 +60,19 @@ public sealed class QuestionService(
 
     public async Task UpdateQuestionAsync(int collectionId, int questionId, UpdateQuestionDto questionDto, CancellationToken cancellationToken)
     {
-        try
-        {
-            var question = await repository.GetQuestionByIdAsync(questionId, cancellationToken);
-            if (question is null)
-                throw new CustomNotFoundException($"{nameof(Question)} not found.");
-        
-            _ = await repository.GetCollectionByIdAsync(collectionId, cancellationToken)
-                ?? throw new CustomNotFoundException($"{nameof(Collection)} not found.");
+        var question = await repository.GetQuestionSingleOrDefaultAsync(questionId, cancellationToken);
+        if (question is null)
+            throw new CustomNotFoundException($"{nameof(Question)} not found.");
 
-            var mappedQuestionModel = mapper.Map<UpdateQuestion>(questionDto);
+        var collection = await repository.GetCollectionSingleOrDefaultAsync(collectionId, cancellationToken);
+        if(collection is null)
+            throw new CustomNotFoundException($"{nameof(Collection)} not found.");
 
-            mapper.Map(mappedQuestionModel, question);
-            question.UpdatedAt = DateTime.UtcNow;    
-            await repository.UpdateQuestionAsync(question, cancellationToken);
-        }
-        catch (CustomNotFoundException e)
-        {
-            logger.LogError(e, e.Message);
-            throw;
-        }
-        catch (Exception e)
-        {
-            logger.LogError(e, e.Message);
-            throw;
-        }
+        var mappedQuestionModel = mapper.Map<UpdateQuestion>(questionDto);
 
+        mapper.Map(mappedQuestionModel, question);
+        question.UpdatedAt = DateTime.UtcNow;    
+        await repository.UpdateQuestionAsync(question, cancellationToken);
     }
 
 } 

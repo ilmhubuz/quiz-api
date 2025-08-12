@@ -13,7 +13,7 @@ public interface ICSharpRepository
         int pageSize,
         CancellationToken cancellationToken = default);
     Task<IReadOnlyList<Question>> GetPreviewQuestionsAsync(int collectionId, CancellationToken cancellationToken = default);
-    Task<Question?> GetQuestionByIdAsync(int questionId, CancellationToken cancellationToken = default);
+    Task<Question?> GetQuestionSingleOrDefaultAsync(int questionId, CancellationToken cancellationToken = default);
     Task<UserAnswer?> GetLatestAnswerAsync(string userId, int questionId, CancellationToken cancellationToken = default);
     Task SaveAnswerAsync(UserAnswer answer, CancellationToken cancellationToken = default);
     Task<UserProgress?> GetUserProgressAsync(string userId, int collectionId, CancellationToken cancellationToken = default);
@@ -44,5 +44,5 @@ public interface ICSharpRepository
         CancellationToken cancellationToken = default);
 
     Task UpdateQuestionAsync(Question question, CancellationToken cancellationToken = default);
-    Task<Collection?> GetCollectionByIdAsync(int collectionId, CancellationToken cancellationToken = default);
+    Task<Collection?> GetCollectionSingleOrDefaultAsync(int collectionId, CancellationToken cancellationToken = default);
 } 

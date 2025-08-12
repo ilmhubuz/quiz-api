@@ -19,7 +19,7 @@ public sealed class AnswerService(
         int timeSpentSeconds,
         CancellationToken cancellationToken = default)
     {
-        var question = await repository.GetQuestionByIdAsync(questionId, cancellationToken);
+        var question = await repository.GetQuestionSingleOrDefaultAsync(questionId, cancellationToken);
         if (question is null)
             return Result<AnswerSubmissionResponse>.Failure("Question not found");
 

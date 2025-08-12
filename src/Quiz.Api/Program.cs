@@ -3,6 +3,8 @@ using Quiz.CSharp.Data.Extensions;
 using Quiz.Infrastructure.Extensions;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Text.Json.Serialization.Metadata;
+using Quiz.CSharp.Api.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,6 +13,7 @@ builder.Services.AddAzureAppConfiguration(builder.Configuration);
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
+        options.JsonSerializerOptions.TypeInfoResolverChain.Insert(0, new DefaultJsonTypeInfoResolver());
         options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
         options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
     });
@@ -39,7 +42,7 @@ builder.Services.AddCors(options =>
 var app = builder.Build();
 
 app.UseSwaggerWithOAuth();
-
+app.UseMiddleware<ErrorHandlingMiddleware>();
 app.UseHttpsRedirection();
 app.UseCors("AllowReactApp");
 

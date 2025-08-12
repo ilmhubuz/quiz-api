@@ -119,28 +119,8 @@ public sealed class QuestionProfile : Profile
         CreateMap<UpdateQuestionOptionDto, UpdateQuestionOption>();
         CreateMap<UpdateTestCaseDto, UpdateTestCase>();
         
-        
         CreateMap<UpdateQuestion, Question>()
             .ForMember(dest => dest.Metadata, opt => opt.MapFrom(src => SerializeMetaData(src.Metadata)));
-        
-        CreateMap<MCQQuestion, UpdateQuestion>()
-            .ForMember(dest => dest.Metadata, opt => opt.MapFrom(src => SerializeMetaData(src.Metadata)));
-
-        CreateMap<TrueFalseQuestion, UpdateQuestion>()
-            .ForMember(dest => dest.Metadata, opt => opt.MapFrom(src => SerializeMetaData(src.Metadata)));
-
-        CreateMap<FillQuestion, UpdateQuestion>()
-            .ForMember(dest => dest.Metadata, opt => opt.MapFrom(src => SerializeMetaData(src.Metadata)));
-
-        CreateMap<ErrorSpottingQuestion, UpdateQuestion>()
-            .ForMember(dest => dest.Metadata, opt => opt.MapFrom(src => SerializeMetaData(src.Metadata)));
-
-        CreateMap<OutputPredictionQuestion, UpdateQuestion>()
-            .ForMember(dest => dest.Metadata, opt => opt.MapFrom(src => SerializeMetaData(src.Metadata)));
-        
-        CreateMap<CodeWritingQuestion, UpdateQuestion>()
-            .ForMember(dest => dest.Metadata, opt => opt.MapFrom(src => SerializeMetaData(src.Metadata)));
-        
     }
     
     private static string SerializeMetaData(object metadata) =>
