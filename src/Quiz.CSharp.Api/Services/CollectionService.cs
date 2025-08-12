@@ -42,4 +42,21 @@ public sealed class CollectionService(
 
         return responses;
     }
-} 
+
+    public async Task<List<CollectionResponse>> UpdateCollectionAsync(
+        string code,
+        Contracts.Requests.UpdateCollectionRequest nextRequest,
+        CancellationToken cancellationToken = default)
+    {
+        if (!await repository.CollectionExistsAsync(code, cancellationToken))
+            throw new KeyNotFoundException($"Collection with code '{code}' not found.");
+
+        var dataRequest = mapper.Map<Data.Services.UpdateCollectionRequest>(nextRequest);
+
+        var updatedCollection = await repository.UpdateCollectionAsync(code, dataRequest, cancellationToken);
+
+        return updatedCollection
+            .Select(c => mapper.Map<CollectionResponse>(c))
+            .ToList();
+    }
+}

@@ -1,7 +1,6 @@
 namespace Quiz.CSharp.Data.Services;
 
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 using Quiz.CSharp.Data.Entities;
 using Quiz.Shared.Common;
 
@@ -208,6 +207,31 @@ public sealed class CSharpRepository(ICSharpDbContext context) : ICSharpReposito
         return await context.Collections
             .AnyAsync(c => c.Code == code && c.IsActive, cancellationToken);
     }
+
+    public async Task<IReadOnlyList<Collection>> UpdateCollectionAsync(string code, UpdateCollectionRequest request, CancellationToken cancellationToken = default)
+    {
+        return await context.Collections
+            .Where(c => c.Code == code && c.IsActive)
+            .OrderBy(c => c.SortOrder)
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task<IReadOnlyList<UpdateCollectionRequest>> UpdateCollectionByAsync(string code, CancellationToken cancellationToken = default)
+    {
+        return await context.Collections
+            .Where(c => c.IsActive)
+            .Select(c => new UpdateCollectionRequest
+            {
+                Name = c.Name,
+                Description = c.Description,
+                Code = c.Code,
+                IsActive = c.IsActive,
+                Icon = c.Icon,
+                SortOrder = c.SortOrder,
+                Title = c.Title
+            })
+            .ToListAsync(cancellationToken);
+    }
 }
 
 public sealed class CollectionWithQuestionCount
@@ -215,3 +239,14 @@ public sealed class CollectionWithQuestionCount
     public required Collection Collection { get; init; }
     public int QuestionCount { get; init; }
 } 
+
+public sealed class UpdateCollectionRequest
+{
+    public string? Name { get; set; }
+    public required string Description { get; set; }
+    public string? Code { get; set; }
+    public bool IsActive { get; set; }
+    public required string Icon { get; set; }
+    public int SortOrder { get; set; }
+    public required string Title { get; set; }
+}

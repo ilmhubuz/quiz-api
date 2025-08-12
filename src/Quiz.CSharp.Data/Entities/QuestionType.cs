@@ -1,4 +1,4 @@
-namespace Quiz.CSharp.Data.ValueObjects;
+namespace Quiz.CSharp.Data.Entities;
 
 public enum QuestionType
 {
@@ -8,4 +8,4 @@ public enum QuestionType
     ErrorSpotting,
     OutputPrediction,
     CodeWriting
-} 
+}
