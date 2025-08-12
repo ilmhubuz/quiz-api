@@ -94,17 +94,11 @@ public sealed class QuestionProfile : Profile
             .ForMember(dest => dest.Option, opt => opt.MapFrom(src => src.Text));
 
         CreateMap<TestCaseData, TestCaseResponse>();
-
         CreateMap<CreateQuestionRequest, MCQQuestion>();
-
         CreateMap<CreateQuestionRequest, TrueFalseQuestion>();
-
         CreateMap<CreateQuestionRequest, FillQuestion>();
-
         CreateMap<CreateQuestionRequest, ErrorSpottingQuestion>();
-
         CreateMap<CreateQuestionRequest, OutputPredictionQuestion>();
-
         CreateMap<CreateQuestionRequest, CodeWritingQuestion>();
     }
 
