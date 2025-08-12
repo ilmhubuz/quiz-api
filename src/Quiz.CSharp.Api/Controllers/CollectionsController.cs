@@ -31,10 +31,6 @@ public sealed class CollectionsController(ICollectionService collectionService) 
         return BadRequest(result.ErrorMessage);
     }
 
-    return CreatedAtAction(
-        nameof(GetCollections),
-        new { id = result.Value!.Id },
-        result.Value
-    );
+    return CreatedAtAction(nameof(GetCollections),new { id = result.Value!.Id },result.Value);
 }
 } 
