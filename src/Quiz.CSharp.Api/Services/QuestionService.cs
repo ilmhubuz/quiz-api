@@ -2,7 +2,6 @@ namespace Quiz.CSharp.Api.Services;
 
 using AutoMapper;
 using Quiz.CSharp.Api.Contracts;
-using Quiz.CSharp.Data.Entities;
 using Quiz.CSharp.Data.Services;
 using Quiz.Shared.Authentication;
 using Quiz.Shared.Common;
@@ -56,5 +55,15 @@ public sealed class QuestionService(
     {
         var questions = await repository.GetPreviewQuestionsAsync(collectionId, cancellationToken);
         return mapper.Map<List<QuestionResponse>>(questions);
+    }
+
+    public Task<Result<QuestionResponse>> CreateQuestionAsync(string type, string subcategory, string difficulty, string prompt, int estimatedTimeMinutes, CancellationToken cancellationToken = default)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<Result<QuestionResponse>> GetQuestionByIdAsync(int questionId, CancellationToken cancellationToken = default)
+    {
+        throw new NotImplementedException();
     }
 } 

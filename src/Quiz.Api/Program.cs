@@ -22,6 +22,10 @@ builder.Services.AddInfrastructure(builder.Configuration);
 
 builder.Services.AddCSharpData(builder.Configuration);
 builder.Services.AddCSharpApi();
+// for swagger
+builder.Services.AddSwaggerGen();
+
+//
 
 builder.Services.AddHealthChecks()
     .AddDbContextCheck<CSharpDbContext>();

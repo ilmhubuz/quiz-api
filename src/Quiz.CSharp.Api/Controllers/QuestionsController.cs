@@ -13,6 +13,39 @@ using Quiz.Infrastructure.Authentication;
 [RequireSubscription("csharp-quiz")]
 public sealed class QuestionsController(IQuestionService questionService) : ControllerBase
 {
+    // for posting questions
+ 
+    
+[HttpPost]
+    [Authorize]
+    [ProducesResponseType<ApiResponse<QuestionResponse>>(StatusCodes.Status200OK)]
+    [ProducesResponseType<ApiResponse<QuestionResponse>>(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> CreateQuestion(
+        [FromBody] CreateQuestionRequest request,
+        CancellationToken cancellationToken)
+    {
+        var result = await questionService.CreateQuestionAsync(
+        request.Type,
+        request.Subcategory,
+        request.Difficulty,
+        request.Prompt,
+        request.EstimatedTimeMinutes,
+        cancellationToken);
+
+    return result.IsSuccess
+        ? Ok(new ApiResponse<QuestionResponse>(result.Value))
+        : BadRequest(new ApiResponse<QuestionResponse>(
+            Success: false,
+            Message: result.ErrorMessage,
+            Errors: result.Errors));
+    }
+
+
+
+
+
+    // for getting questions by collection
+
     [HttpGet]
     [Authorize]
     [ProducesResponseType<PaginatedApiResponse<QuestionResponse>>(StatusCodes.Status200OK)]
@@ -40,4 +73,5 @@ public sealed class QuestionsController(IQuestionService questionService) : Cont
         var questions = await questionService.GetPreviewQuestionsAsync(collectionId, cancellationToken);
         return Ok(new ApiResponse<List<QuestionResponse>>(questions));
     }
+
 } 
