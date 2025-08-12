@@ -89,7 +89,7 @@ public sealed class AnswerService(
             existingProgress.CorrectAnswers = correctAnswers;
             existingProgress.SuccessRate = Math.Round(successRate, 2);
             existingProgress.LastAnsweredAt = DateTime.UtcNow;
-            existingProgress.UpdatedAt = DateTime.UtcNow;
+            existingProgress.UpdatedAt = DateTimeOffset.UtcNow;
             
             await repository.UpdateUserProgressAsync(existingProgress, cancellationToken);
         }

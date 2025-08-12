@@ -45,13 +45,9 @@ public sealed class CSharpDbContext(DbContextOptions<CSharpDbContext> options) :
         foreach (var entry in entries)
         {
             if (entry.State == EntityState.Added)
-            {
-                entry.Entity.UpdatedAt = now;
-            }
+                entry.Entity.CreatedAt = entry.Entity.UpdatedAt = now;
             else if (entry.State == EntityState.Modified)
-            {
                 entry.Entity.UpdatedAt = now;
-            }
         }
     }
 }

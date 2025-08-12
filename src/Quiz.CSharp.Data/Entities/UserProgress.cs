@@ -15,4 +15,5 @@ public sealed class UserProgress : BaseEntity
     public decimal SuccessRate { get; set; }
     public DateTime LastAnsweredAt { get; set; }
     public Collection Collection { get; init; } = null!;
+    public DateTimeOffset? UpdatedAt { get; set; }
 } 

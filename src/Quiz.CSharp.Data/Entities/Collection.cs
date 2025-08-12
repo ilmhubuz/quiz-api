@@ -12,4 +12,5 @@ public sealed class Collection : BaseEntity
     public int SortOrder { get; init; }
     public ICollection<Question> Questions { get; init; } = [];
     public ICollection<UserProgress> UserProgress { get; init; } = [];
+    public DateTimeOffset UpdatedAt { get; set; }
 } 
