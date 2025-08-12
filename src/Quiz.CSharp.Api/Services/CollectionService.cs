@@ -4,6 +4,8 @@ using AutoMapper;
 using Quiz.CSharp.Api.Contracts;
 using Quiz.CSharp.Data.Services;
 using Quiz.Shared.Authentication;
+using Quiz.CSharp.Data.Entities;
+using Quiz.CSharp.Api.Dtos;
 
 public sealed class CollectionService(
     ICSharpRepository repository,
@@ -41,5 +43,11 @@ public sealed class CollectionService(
         }
 
         return responses;
+    }
+     public async Task<CollectionResponse> CreateCollectionAsync(CreateCollection dto, CancellationToken cancellationToken = default)
+    {
+       var collection = mapper.Map<Collection>(dto);
+        await repository.AddCollectionAsync(collection, cancellationToken);
+        return mapper.Map<CollectionResponse>(collection);
     }
 } 

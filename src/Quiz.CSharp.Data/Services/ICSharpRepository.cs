@@ -39,6 +39,7 @@ public interface ICSharpRepository
     Task<Collection> CreateCollectionAsync(Collection collection, CancellationToken cancellationToken = default);
     Task<Question> CreateQuestionAsync(Question question, CancellationToken cancellationToken = default);
     Task<bool> CollectionExistsAsync(string code, CancellationToken cancellationToken = default);
+    Task AddCollectionAsync(Collection collection, CancellationToken cancellationToken = default);
     Task<List<int>> GetAnsweredCollectionIdsByUserIdAsync(
         string userId,
         CancellationToken cancellationToken = default);

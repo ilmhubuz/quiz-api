@@ -207,6 +207,11 @@ public sealed class CSharpRepository(ICSharpDbContext context) : ICSharpReposito
         return await context.Collections
             .AnyAsync(c => c.Code == code && c.IsActive, cancellationToken);
     }
+     public async Task AddCollectionAsync(Collection collection, CancellationToken cancellationToken = default)
+    {
+        context.Collections.Add(collection);
+        await context.SaveChangesAsync(cancellationToken);
+    }
     
     public async Task<List<int>> GetAnsweredCollectionIdsByUserIdAsync(
         string userId,
