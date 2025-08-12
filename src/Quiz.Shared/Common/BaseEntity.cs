@@ -1,6 +1,6 @@
 namespace Quiz.Shared.Common;
 
-public abstract class BaseEntity
+public abstract class BaseEntity :IHasTimestamp
 {
     public DateTime CreatedAt { get; init; } = DateTime.UtcNow;
     public DateTime? UpdatedAt { get; set; }
