@@ -1,5 +1,6 @@
 namespace Quiz.CSharp.Api.Services;
 
+using Microsoft.CodeAnalysis;
 using Microsoft.Extensions.Logging;
 using Quiz.CSharp.Api.Contracts;
 using Quiz.CSharp.Api.Contracts.Requests;
@@ -67,16 +68,21 @@ public sealed class CollectionManagementService(
         if (questionType == null)
             return null;
 
-        return questionType.Value switch
+        Question? question = questionType.Value switch
         {
-            QuestionType.MCQ => mapper.Map<MCQQuestion>((request, collectionId)),
-            QuestionType.TrueFalse => mapper.Map<TrueFalseQuestion>((request, collectionId)),
-            QuestionType.Fill => mapper.Map<FillQuestion>((request, collectionId)),
-            QuestionType.ErrorSpotting => mapper.Map<ErrorSpottingQuestion>((request, collectionId)),
-            QuestionType.OutputPrediction => mapper.Map<OutputPredictionQuestion>((request, collectionId)),
-            QuestionType.CodeWriting => mapper.Map<CodeWritingQuestion>((request, collectionId)),
+            QuestionType.MCQ => mapper.Map<MCQQuestion>(request),
+            QuestionType.TrueFalse => mapper.Map<TrueFalseQuestion>(request),
+            QuestionType.Fill => mapper.Map<FillQuestion>(request),
+            QuestionType.ErrorSpotting => mapper.Map<ErrorSpottingQuestion>(request),
+            QuestionType.OutputPrediction => mapper.Map<OutputPredictionQuestion>(request),
+            QuestionType.CodeWriting => mapper.Map<CodeWritingQuestion>(request),
             _ => null
         };
+
+        if (question is not null)
+            question.CollectionId = collectionId;
+
+        return question;
     }
 
     private static QuestionType? GetQuestionTypeFromString(string typeString)

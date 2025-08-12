@@ -95,53 +95,17 @@ public sealed class QuestionProfile : Profile
 
         CreateMap<TestCaseData, TestCaseResponse>();
 
-        CreateMap<(CreateQuestionRequest request, int collectionId), MCQQuestion>()
-            .ForMember(dest => dest.CollectionId, opt => opt.MapFrom(src => src.collectionId))
-            .ForMember(dest => dest.Subcategory, opt => opt.MapFrom(src => src.request.Subcategory))
-            .ForMember(dest => dest.Difficulty, opt => opt.MapFrom(src => src.request.Difficulty))
-            .ForMember(dest => dest.Prompt, opt => opt.MapFrom(src => src.request.Prompt))
-            .ForMember(dest => dest.EstimatedTimeMinutes, opt => opt.MapFrom(src => src.request.EstimatedTimeMinutes))
-            .ForMember(dest => dest.Metadata, opt => opt.MapFrom(src => src.request.Metadata));
+        CreateMap<CreateQuestionRequest, MCQQuestion>();
 
-        CreateMap<(CreateQuestionRequest request, int collectionId), TrueFalseQuestion>()
-            .ForMember(dest => dest.CollectionId, opt => opt.MapFrom(src => src.collectionId))
-            .ForMember(dest => dest.Subcategory, opt => opt.MapFrom(src => src.request.Subcategory))
-            .ForMember(dest => dest.Difficulty, opt => opt.MapFrom(src => src.request.Difficulty))
-            .ForMember(dest => dest.Prompt, opt => opt.MapFrom(src => src.request.Prompt))
-            .ForMember(dest => dest.EstimatedTimeMinutes, opt => opt.MapFrom(src => src.request.EstimatedTimeMinutes))
-            .ForMember(dest => dest.Metadata, opt => opt.MapFrom(src => src.request.Metadata));
+        CreateMap<CreateQuestionRequest, TrueFalseQuestion>();
 
-        CreateMap<(CreateQuestionRequest request, int collectionId), FillQuestion>()
-            .ForMember(dest => dest.CollectionId, opt => opt.MapFrom(src => src.collectionId))
-            .ForMember(dest => dest.Subcategory, opt => opt.MapFrom(src => src.request.Subcategory))
-            .ForMember(dest => dest.Difficulty, opt => opt.MapFrom(src => src.request.Difficulty))
-            .ForMember(dest => dest.Prompt, opt => opt.MapFrom(src => src.request.Prompt))
-            .ForMember(dest => dest.EstimatedTimeMinutes, opt => opt.MapFrom(src => src.request.EstimatedTimeMinutes))
-            .ForMember(dest => dest.Metadata, opt => opt.MapFrom(src => src.request.Metadata));
+        CreateMap<CreateQuestionRequest, FillQuestion>();
 
-        CreateMap<(CreateQuestionRequest request, int collectionId), ErrorSpottingQuestion>()
-            .ForMember(dest => dest.CollectionId, opt => opt.MapFrom(src => src.collectionId))
-            .ForMember(dest => dest.Subcategory, opt => opt.MapFrom(src => src.request.Subcategory))
-            .ForMember(dest => dest.Difficulty, opt => opt.MapFrom(src => src.request.Difficulty))
-            .ForMember(dest => dest.Prompt, opt => opt.MapFrom(src => src.request.Prompt))
-            .ForMember(dest => dest.EstimatedTimeMinutes, opt => opt.MapFrom(src => src.request.EstimatedTimeMinutes))
-            .ForMember(dest => dest.Metadata, opt => opt.MapFrom(src => src.request.Metadata));
+        CreateMap<CreateQuestionRequest, ErrorSpottingQuestion>();
 
-        CreateMap<(CreateQuestionRequest request, int collectionId), OutputPredictionQuestion>()
-            .ForMember(dest => dest.CollectionId, opt => opt.MapFrom(src => src.collectionId))
-            .ForMember(dest => dest.Subcategory, opt => opt.MapFrom(src => src.request.Subcategory))
-            .ForMember(dest => dest.Difficulty, opt => opt.MapFrom(src => src.request.Difficulty))
-            .ForMember(dest => dest.Prompt, opt => opt.MapFrom(src => src.request.Prompt))
-            .ForMember(dest => dest.EstimatedTimeMinutes, opt => opt.MapFrom(src => src.request.EstimatedTimeMinutes))
-            .ForMember(dest => dest.Metadata, opt => opt.MapFrom(src => src.request.Metadata));
+        CreateMap<CreateQuestionRequest, OutputPredictionQuestion>();
 
-        CreateMap<(CreateQuestionRequest request, int collectionId), CodeWritingQuestion>()
-            .ForMember(dest => dest.CollectionId, opt => opt.MapFrom(src => src.collectionId))
-            .ForMember(dest => dest.Subcategory, opt => opt.MapFrom(src => src.request.Subcategory))
-            .ForMember(dest => dest.Difficulty, opt => opt.MapFrom(src => src.request.Difficulty))
-            .ForMember(dest => dest.Prompt, opt => opt.MapFrom(src => src.request.Prompt))
-            .ForMember(dest => dest.EstimatedTimeMinutes, opt => opt.MapFrom(src => src.request.EstimatedTimeMinutes))
-            .ForMember(dest => dest.Metadata, opt => opt.MapFrom(src => src.request.Metadata));
+        CreateMap<CreateQuestionRequest, CodeWritingQuestion>();
     }
 
     private static string GetQuestionType(Question question)
