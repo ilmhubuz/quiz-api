@@ -1,6 +1,5 @@
 namespace Quiz.CSharp.Api.Services;
 
-using Microsoft.CodeAnalysis;
 using Microsoft.Extensions.Logging;
 using Quiz.CSharp.Api.Contracts;
 using Quiz.CSharp.Api.Contracts.Requests;
