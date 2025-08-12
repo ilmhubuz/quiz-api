@@ -10,6 +10,7 @@ using Quiz.Shared.Common;
 
 public sealed class CollectionManagementService(
     ICSharpRepository repository,
+    IMapper mapper,
     ILogger<CollectionManagementService> logger) : ICollectionManagementService
 {
     public async Task<Result<CreateCollectionResponse>> CreateCollectionWithQuestionsAsync(
@@ -25,16 +26,7 @@ public sealed class CollectionManagementService(
             }
 
             // Create collection entity
-            var collection = new Collection
-            {
-                Code = request.Code,
-                Title = request.Title,
-                Description = request.Description,
-                Icon = request.Icon,
-                SortOrder = request.SortOrder,
-                CreatedAt = DateTime.UtcNow,
-                IsActive = true
-            };
+            var collection = mapper.Map<Collection>(request);
 
             // Save collection first to get the ID
             var createdCollection = await repository.CreateCollectionAsync(collection, cancellationToken);
@@ -43,7 +35,7 @@ public sealed class CollectionManagementService(
             var questionsCreated = 0;
             foreach (var questionRequest in request.Questions)
             {
-                var question = CreateQuestionFromRequest(questionRequest, createdCollection.Id);
+                var question = CreateQuestionFromRequest(questionRequest, createdCollection.Id, mapper);
                 if (question != null)
                 {
                     await repository.CreateQuestionAsync(question, cancellationToken);
@@ -58,17 +50,7 @@ public sealed class CollectionManagementService(
             logger.LogInformation("Created collection {Code} with {QuestionCount} questions", 
                 request.Code, questionsCreated);
 
-            var response = new CreateCollectionResponse
-            {
-                Id = createdCollection.Id,
-                Code = createdCollection.Code,
-                Title = createdCollection.Title,
-                Description = createdCollection.Description,
-                Icon = createdCollection.Icon,
-                SortOrder = createdCollection.SortOrder,
-                QuestionsCreated = questionsCreated,
-                CreatedAt = createdCollection.CreatedAt
-            };
+            var response = mapper.Map<CreateCollectionResponse>(createdCollection);
 
             return Result<CreateCollectionResponse>.Success(response);
         }
@@ -79,82 +61,27 @@ public sealed class CollectionManagementService(
         }
     }
 
-    private static Question? CreateQuestionFromRequest(CreateQuestionRequest request, int collectionId)
+    private static Question? CreateQuestionFromRequest(CreateQuestionRequest request, int collectionId, IMapper mapper)
     {
         var questionType = GetQuestionTypeFromString(request.Type);
         if (questionType == null)
             return null;
 
-        return questionType.Value switch
+        Question? question = questionType.Value switch
         {
-            QuestionType.MCQ => new MCQQuestion
-            {
-                CollectionId = collectionId,
-                Subcategory = request.Subcategory,
-                Difficulty = request.Difficulty,
-                Prompt = request.Prompt,
-                EstimatedTimeMinutes = request.EstimatedTimeMinutes,
-                Metadata = request.Metadata,
-                CreatedAt = DateTime.UtcNow,
-                IsActive = true
-            },
-            QuestionType.TrueFalse => new TrueFalseQuestion
-            {
-                CollectionId = collectionId,
-                Subcategory = request.Subcategory,
-                Difficulty = request.Difficulty,
-                Prompt = request.Prompt,
-                EstimatedTimeMinutes = request.EstimatedTimeMinutes,
-                Metadata = request.Metadata,
-                CreatedAt = DateTime.UtcNow,
-                IsActive = true
-            },
-            QuestionType.Fill => new FillQuestion
-            {
-                CollectionId = collectionId,
-                Subcategory = request.Subcategory,
-                Difficulty = request.Difficulty,
-                Prompt = request.Prompt,
-                EstimatedTimeMinutes = request.EstimatedTimeMinutes,
-                Metadata = request.Metadata,
-                CreatedAt = DateTime.UtcNow,
-                IsActive = true
-            },
-            QuestionType.ErrorSpotting => new ErrorSpottingQuestion
-            {
-                CollectionId = collectionId,
-                Subcategory = request.Subcategory,
-                Difficulty = request.Difficulty,
-                Prompt = request.Prompt,
-                EstimatedTimeMinutes = request.EstimatedTimeMinutes,
-                Metadata = request.Metadata,
-                CreatedAt = DateTime.UtcNow,
-                IsActive = true
-            },
-            QuestionType.OutputPrediction => new OutputPredictionQuestion
-            {
-                CollectionId = collectionId,
-                Subcategory = request.Subcategory,
-                Difficulty = request.Difficulty,
-                Prompt = request.Prompt,
-                EstimatedTimeMinutes = request.EstimatedTimeMinutes,
-                Metadata = request.Metadata,
-                CreatedAt = DateTime.UtcNow,
-                IsActive = true
-            },
-            QuestionType.CodeWriting => new CodeWritingQuestion
-            {
-                CollectionId = collectionId,
-                Subcategory = request.Subcategory,
-                Difficulty = request.Difficulty,
-                Prompt = request.Prompt,
-                EstimatedTimeMinutes = request.EstimatedTimeMinutes,
-                Metadata = request.Metadata,
-                CreatedAt = DateTime.UtcNow,
-                IsActive = true
-            },
+            QuestionType.MCQ => mapper.Map<MCQQuestion>(request),
+            QuestionType.TrueFalse => mapper.Map<TrueFalseQuestion>(request),
+            QuestionType.Fill => mapper.Map<FillQuestion>(request),
+            QuestionType.ErrorSpotting => mapper.Map<ErrorSpottingQuestion>(request),
+            QuestionType.OutputPrediction => mapper.Map<OutputPredictionQuestion>(request),
+            QuestionType.CodeWriting => mapper.Map<CodeWritingQuestion>(request),
             _ => null
         };
+
+        if (question is not null)
+            question.CollectionId = collectionId;
+
+        return question;
     }
 
     private static QuestionType? GetQuestionTypeFromString(string typeString)

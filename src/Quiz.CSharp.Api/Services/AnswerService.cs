@@ -11,6 +11,7 @@ public sealed class AnswerService(
     ICSharpRepository repository,
     IAnswerValidator validator,
     ICurrentUser currentUser,
+    IMapper mapper,
     ILogger<AnswerService> logger) : IAnswerService
 {
     public async Task<Result<AnswerSubmissionResponse>> SubmitAnswerAsync(
@@ -96,22 +97,9 @@ public sealed class AnswerService(
         else
         {
             // Create new progress record
-            var newProgress = new UserProgress
-            {
-                UserId = userId,
-                Username = currentUser.Username,
-                Name = currentUser.Name,
-                TelegramUsername = currentUser.TelegramUsername,
-                CollectionId = collectionId,
-                TotalQuestions = totalQuestions,
-                AnsweredQuestions = answeredQuestions,
-                CorrectAnswers = correctAnswers,
-                SuccessRate = Math.Round(successRate, 2),
-                LastAnsweredAt = DateTime.UtcNow,
-                CreatedAt = DateTime.UtcNow,
-                IsActive = true
-            };
-            
+            var newProgress = mapper.Map<UserProgress>(
+                            (currentUser, totalQuestions, answeredQuestions, correctAnswers, successRate, collectionId, userId));
+
             await repository.CreateUserProgressAsync(newProgress, cancellationToken);
         }
 
