@@ -1,7 +1,9 @@
+using Microsoft.Extensions.Logging;
 using Quiz.CSharp.Api.Dtos.Question;
 using Quiz.CSharp.Data.Entities;
 using Quiz.CSharp.Data.Models;
 using Quiz.Shared.Exceptions;
+using UpdateQuestion = Quiz.CSharp.Data.Models.UpdateQuestion;
 
 namespace Quiz.CSharp.Api.Services;
 
@@ -67,7 +69,7 @@ public sealed class QuestionService(
         return mapper.Map<List<QuestionResponse>>(questions);
     }
 
-    public async Task UpdateQuestionAsync(int collectionId, int questionId, UpdateQuestionDto questionDto, CancellationToken cancellationToken)
+    public async Task<QuestionResponse> UpdateQuestionAsync(int collectionId, int questionId, Dtos.Question.UpdateQuestion updateQuestion, CancellationToken cancellationToken)
     {
         var question = await questionRepository.GetQuestionSingleOrDefaultAsync(questionId, cancellationToken);
         if (question is null)
@@ -77,11 +79,30 @@ public sealed class QuestionService(
         if(collection is null)
             throw new CustomNotFoundException($"{nameof(Collection)} not found.");
 
-        var mappedQuestionModel = mapper.Map<UpdateQuestion>(questionDto);
+        var mappedQuestionModel = mapper.Map<Data.Models.UpdateQuestion>(updateQuestion);
 
         mapper.Map(mappedQuestionModel, question);
         question.UpdatedAt = DateTime.UtcNow;    
         await questionRepository.UpdateQuestionAsync(question, cancellationToken);
+        await repository.UpdateQuestionAsync(question, cancellationToken);
+        
+        return mapper.Map<QuestionResponse>(question);
     }
 
-} 
+    public List<QuestionHint> CreateHintsFromExplanation(string? explanation)
+    {
+        var hints = new List<QuestionHint>();
+        
+        if (!string.IsNullOrWhiteSpace(explanation))
+        {
+            hints.Add(new QuestionHint
+            {
+                Hint = explanation,
+                OrderIndex = 1
+            });
+        }
+
+        return hints;
+    }
+    
+}

@@ -1,4 +1,4 @@
-using Quiz.CSharp.Api.Dtos.Question;
+using System.Text.Json.Serialization;
 using Quiz.CSharp.Data.Models;
 
 namespace Quiz.CSharp.Api.Mapping;
@@ -104,33 +104,50 @@ public sealed class QuestionProfile : Profile
         CreateMap<CreateQuestionRequest, OutputPredictionQuestion>();
         CreateMap<CreateQuestionRequest, CodeWritingQuestion>();
         
-        CreateMap<UpdateQuestionDto, UpdateQuestion>();
+        CreateMap<Dtos.Question.UpdateQuestion, UpdateQuestion>()
+            .ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
         
-        CreateMap<UpdateQuestionMetaDataDto, UpdateQuestionMetaData>()
-            .Include<UpdateMcqMetaDataDto, UpdateMcqMetaData>()
-            .Include<UpdateTrueFalseMetaDataDto, UpdateTrueFalseMetaData>()
-            .Include<UpdateFillMetaDataDto, UpdateFillMetaData>()
-            .Include<UpdateErrorSpottingMetaDataDto, UpdateErrorSpottingMetaData>()
-            .Include<UpdateOutputPredictionMetaDataDto, UpdateOutputPredictionMetaData>()
-            .Include<UpdateCodeWritingMetaDataDto, UpdateCodeWritingMetaData>();
-        
-        CreateMap<UpdateMcqMetaDataDto, UpdateMcqMetaData>();
-        CreateMap<UpdateTrueFalseMetaDataDto, UpdateTrueFalseMetaData>();
-        CreateMap<UpdateFillMetaDataDto, UpdateFillMetaData>();
-        CreateMap<UpdateErrorSpottingMetaDataDto, UpdateErrorSpottingMetaData>();
-        CreateMap<UpdateOutputPredictionMetaDataDto, UpdateOutputPredictionMetaData>();
-        CreateMap<UpdateCodeWritingMetaDataDto, UpdateCodeWritingMetaData>();
-        
-        CreateMap<UpdateQuestionMetadataDto, UpdateQuestionMetadata>();
-        CreateMap<UpdateQuestionOptionDto, UpdateQuestionOption>();
-        CreateMap<UpdateTestCaseDto, UpdateTestCase>();
-        
+        CreateMap<Dtos.Question.UpdateQuestionMetaData, UpdateQuestionMetaData>()
+            .ForMember(d => d.Options, o => o.Condition(s => s.Options != null))
+            .ForMember(d => d.Answer, o => o.Condition(s => s.Answer != null))
+            .ForMember(d => d.TestCases, o => o.Condition(s => s.TestCases != null))
+            .ForMember(d => d.Examples, o => o.Condition(s => s.Examples != null))
+            .ForMember(d => d.Rubric, o => o.Condition(s => s.Rubric != null))
+            .ForAllMembers(o => o.Condition((src, dest, srcMember) => srcMember != null));
+      
+        CreateMap<Dtos.Question.UpdateQuestionOption, UpdateQuestionOption>()
+            .ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));;
+       
+        CreateMap<Dtos.Question.UpdateTestCase, UpdateTestCase>()
+               .ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));;
+
         CreateMap<UpdateQuestion, Question>()
-            .ForMember(dest => dest.Metadata, opt => opt.MapFrom(src => SerializeMetaData(src.Metadata)));
+            .ForMember(dest => dest.Metadata, opt => opt.MapFrom(src => SerializeUpdateQuestionMetaData(src.Metadata)))
+            .ForAllMembers(o => o.Condition((src, dest, srcMember) => srcMember != null));
     }
     
-    private static string SerializeMetaData(object metadata) =>
-        JsonSerializer.Serialize(metadata);
+    private string SerializeUpdateQuestionMetaData(UpdateQuestionMetaData updateQuestionMetaData)
+    {
+        var options = new JsonSerializerOptions
+        {
+            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+            PropertyNamingPolicy = null
+        };
+        
+        if (string.IsNullOrWhiteSpace(updateQuestionMetaData?.Explanation) is false)
+        {
+            updateQuestionMetaData.Hints =
+            [
+                new QuestionHint
+                {
+                    Hint = updateQuestionMetaData.Explanation,
+                    OrderIndex = 1
+                }
+            ];
+        }
+        
+        return JsonSerializer.Serialize(updateQuestionMetaData, options);
+    }
 
     private static string GetQuestionType(Question question)
     {

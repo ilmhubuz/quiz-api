@@ -1,4 +1,4 @@
-namespace Quiz.CSharp.Data.Models;
+namespace Quiz.CSharp.Api.Dtos.Question;
 
 public class UpdateQuestion
 {
@@ -7,6 +7,7 @@ public class UpdateQuestion
     public required string Prompt { get; set; }
     public int EstimatedTimeMinutes { get; set; }
     public required string Type { get; set; }  
+
     public required UpdateQuestionMetaData Metadata { get; set; }
 }
 
@@ -26,9 +27,6 @@ public class UpdateQuestionMetaData
     
     // types => output_prediction_1, error_spotting_1, fill_1, true_false_1, mcq
     public List<string>? Answer { get; set; }
-    
-    // types => All
-    public List<QuestionHint> Hints { get; set; } = [];
     
     // types => output_prediction, error_spotting, fill, true_false, mcq
     public string? Explanation { get; set; } 
@@ -53,12 +51,6 @@ public class UpdateQuestionMetaData
     
     // types => code_writing, 
     public List<string>? Rubric { get; set; }
-}
-
-public class QuestionHint
-{
-    public string Hint { get; set; } = string.Empty;
-    public int OrderIndex { get; set; }
 }
 
 public class UpdateQuestionOption
