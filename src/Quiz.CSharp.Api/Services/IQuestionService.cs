@@ -1,4 +1,4 @@
-using Quiz.CSharp.Api.Dtos.Question;
+using Quiz.CSharp.Data.Models;
 
 namespace Quiz.CSharp.Api.Services;
 
@@ -14,6 +14,8 @@ public interface IQuestionService
         CancellationToken cancellationToken = default);
     Task<List<QuestionResponse>> GetPreviewQuestionsAsync(int collectionId, CancellationToken cancellationToken = default);
 
-    Task UpdateQuestionAsync(int collectionId, int questionId, UpdateQuestionDto questionDto,
+    Task<QuestionResponse> UpdateQuestionAsync(int collectionId, int questionId, Dtos.Question.UpdateQuestion updateQuestion,
         CancellationToken cancellationToken);
+
+    List<QuestionHint> CreateHintsFromExplanation(string? explanation);
 } 
