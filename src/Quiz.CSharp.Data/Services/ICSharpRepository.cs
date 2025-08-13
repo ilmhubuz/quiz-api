@@ -6,6 +6,8 @@ using Quiz.Shared.Common;
 public interface ICSharpRepository
 {
     Task<IReadOnlyList<Collection>> GetCollectionsAsync(CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<Collection>> UpdateCollectionAsync(string code, UpdateCollectionRequest request, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<UpdateCollectionRequest>> UpdateCollectionByAsync(string code, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<CollectionWithQuestionCount>> GetCollectionsWithQuestionCountAsync(CancellationToken cancellationToken = default);
     Task<PaginatedResult<Question>> GetQuestionsByCollectionAsync(
         int collectionId,
@@ -39,4 +41,4 @@ public interface ICSharpRepository
     Task<Collection> CreateCollectionAsync(Collection collection, CancellationToken cancellationToken = default);
     Task<Question> CreateQuestionAsync(Question question, CancellationToken cancellationToken = default);
     Task<bool> CollectionExistsAsync(string code, CancellationToken cancellationToken = default);
-} 
+}

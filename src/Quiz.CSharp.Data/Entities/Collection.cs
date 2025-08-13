@@ -4,6 +4,7 @@ using Quiz.Shared.Common;
 
 public sealed class Collection : BaseEntity
 {
+    public string? Name { get; init; }
     public int Id { get; init; }
     public required string Code { get; init; }
     public required string Title { get; init; }
