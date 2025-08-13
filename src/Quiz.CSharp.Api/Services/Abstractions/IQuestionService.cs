@@ -1,6 +1,7 @@
 using Quiz.CSharp.Api.Dtos.Question;
 
 namespace Quiz.CSharp.Api.Services;
+namespace Quiz.CSharp.Api.Services.Abstractions;
 
 using Quiz.CSharp.Api.Contracts;
 using Quiz.Shared.Common;

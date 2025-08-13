@@ -1,4 +1,3 @@
-using Microsoft.Extensions.Logging;
 using Quiz.CSharp.Api.Dtos.Question;
 using Quiz.CSharp.Data.Entities;
 using Quiz.CSharp.Data.Models;
@@ -7,8 +6,8 @@ using Quiz.Shared.Exceptions;
 namespace Quiz.CSharp.Api.Services;
 
 public sealed class QuestionService(
-    ILogger<QuestionService> logger,
-    ICSharpRepository repository,
+    IAnswerRepository answerRepository,
+    IQuestionRepository questionRepository,
     IMapper mapper,
     ICurrentUser currentUser) : IQuestionService
 {
@@ -18,7 +17,11 @@ public sealed class QuestionService(
         int pageSize,
         CancellationToken cancellationToken = default)
     {
-        var questions = await repository.GetQuestionsByCollectionAsync(collectionId, page, pageSize, cancellationToken);
+        var questions = await questionRepository.GetQuestionsByCollectionAsync(
+            collectionId,
+            page,
+            pageSize,
+            cancellationToken);
         var responses = new List<QuestionResponse>();
 
         foreach (var question in questions.Items)
@@ -27,7 +30,7 @@ public sealed class QuestionService(
 
             if (currentUser.IsAuthenticated && currentUser.UserId is not null)
             {
-                var previousAnswer = await repository.GetLatestAnswerAsync(
+                var previousAnswer = await answerRepository.GetLatestAnswerOrDefaultAsync(
                     currentUser.UserId,
                     question.Id,
                     cancellationToken);
@@ -49,22 +52,28 @@ public sealed class QuestionService(
             responses.Add(response);
         }
 
-        return new PaginatedResult<QuestionResponse>(responses, questions.TotalCount, questions.Page, questions.PageSize);
+        return new PaginatedResult<QuestionResponse>(
+            responses,
+            questions.TotalCount,
+            questions.Page,
+            questions.PageSize);
     }
 
-    public async Task<List<QuestionResponse>> GetPreviewQuestionsAsync(int collectionId, CancellationToken cancellationToken = default)
+    public async Task<List<QuestionResponse>> GetPreviewQuestionsAsync(
+        int collectionId,
+        CancellationToken cancellationToken = default)
     {
-        var questions = await repository.GetPreviewQuestionsAsync(collectionId, cancellationToken);
+        var questions = await questionRepository.GetPreviewQuestionsAsync(collectionId, cancellationToken);
         return mapper.Map<List<QuestionResponse>>(questions);
     }
 
     public async Task UpdateQuestionAsync(int collectionId, int questionId, UpdateQuestionDto questionDto, CancellationToken cancellationToken)
     {
-        var question = await repository.GetQuestionSingleOrDefaultAsync(questionId, cancellationToken);
+        var question = await questionRepository.GetQuestionSingleOrDefaultAsync(questionId, cancellationToken);
         if (question is null)
             throw new CustomNotFoundException($"{nameof(Question)} not found.");
 
-        var collection = await repository.GetCollectionSingleOrDefaultAsync(collectionId, cancellationToken);
+        var collection = await questionRepository.GetCollectionSingleOrDefaultAsync(collectionId, cancellationToken);
         if(collection is null)
             throw new CustomNotFoundException($"{nameof(Collection)} not found.");
 
@@ -72,7 +81,7 @@ public sealed class QuestionService(
 
         mapper.Map(mappedQuestionModel, question);
         question.UpdatedAt = DateTime.UtcNow;    
-        await repository.UpdateQuestionAsync(question, cancellationToken);
+        await questionRepository.UpdateQuestionAsync(question, cancellationToken);
     }
 
 } 

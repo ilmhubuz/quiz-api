@@ -5,7 +5,7 @@ namespace Quiz.CSharp.Api.Controllers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Quiz.CSharp.Api.Contracts;
-using Quiz.CSharp.Api.Services;
+using Quiz.CSharp.Api.Services.Abstractions;
 using Quiz.Shared.Contracts;
 using Quiz.Infrastructure.Authentication;
 
@@ -24,7 +24,11 @@ public sealed class QuestionsController(IQuestionService questionService) : Cont
         [FromQuery] int pageSize = 10,
         CancellationToken cancellationToken = default)
     {
-        var questions = await questionService.GetQuestionsByCollectionAsync(collectionId, page, pageSize, cancellationToken);
+        var questions = await questionService.GetQuestionsByCollectionAsync(
+            collectionId,
+            page,
+            pageSize,
+            cancellationToken);
         return Ok(new PaginatedApiResponse<QuestionResponse>(
             questions.Items.ToList(),
             questions.TotalCount,

@@ -3,15 +3,17 @@ namespace Quiz.CSharp.Api.Services;
 using Microsoft.Extensions.Logging;
 using Quiz.CSharp.Api.Contracts;
 using Quiz.CSharp.Data.Entities;
-using Quiz.CSharp.Data.Services;
+using Quiz.CSharp.Data.Repositories.Abstractions;
 using Quiz.Shared.Authentication;
 using Quiz.Shared.Common;
+using Quiz.CSharp.Api.Services.Abstractions;
 
 public sealed class AnswerService(
-    ICSharpRepository repository,
+    IAnswerRepository answerRepository,
+    IQuestionRepository questionRepository,
+    IUserProgressRepository userProgressRepository,
     IAnswerValidator validator,
     ICurrentUser currentUser,
-    IMapper mapper,
     ILogger<AnswerService> logger) : IAnswerService
 {
     public async Task<Result<AnswerSubmissionResponse>> SubmitAnswerAsync(
@@ -20,7 +22,7 @@ public sealed class AnswerService(
         int timeSpentSeconds,
         CancellationToken cancellationToken = default)
     {
-        var question = await repository.GetQuestionSingleOrDefaultAsync(questionId, cancellationToken);
+        var question = await questionRepository.GetSingleOrDefaultAsync(questionId, cancellationToken);
         if (question is null)
             return Result<AnswerSubmissionResponse>.Failure("Question not found");
 
@@ -28,7 +30,7 @@ public sealed class AnswerService(
 
         if (currentUser.IsAuthenticated && currentUser.UserId is not null)
         {
-            var attemptNumber = await repository.GetNextAttemptNumberAsync(
+            var attemptNumber = await answerRepository.GetNextAttemptNumberAsync(
                 currentUser.UserId,
                 questionId,
                 cancellationToken);
@@ -43,7 +45,7 @@ public sealed class AnswerService(
                 AttemptNumber = attemptNumber
             };
 
-            await repository.SaveAnswerAsync(userAnswer, cancellationToken);
+            await answerRepository.SaveAnswerAsync(userAnswer, cancellationToken);
 
             // Update user progress
             await UpdateUserProgressAsync(currentUser.UserId, question.CollectionId, cancellationToken);
@@ -59,12 +61,12 @@ public sealed class AnswerService(
         });
     }
 
-    public async Task<UserAnswerResponse?> GetLatestAnswerAsync(int questionId, CancellationToken cancellationToken = default)
+    public async Task<UserAnswerResponse?> GetLatestAnswerOrDefaultAsync(int questionId, CancellationToken cancellationToken = default)
     {
         if (!currentUser.IsAuthenticated || currentUser.UserId is null)
             return null;
 
-        var answer = await repository.GetLatestAnswerAsync(currentUser.UserId, questionId, cancellationToken);
+        var answer = await answerRepository.GetLatestAnswerOrDefaultAsync(currentUser.UserId, questionId, cancellationToken);
         return answer is not null ? new UserAnswerResponse
         {
             Answer = answer.Answer,
@@ -73,14 +75,17 @@ public sealed class AnswerService(
         } : null;
     }
 
-    private async Task UpdateUserProgressAsync(string userId, int collectionId, CancellationToken cancellationToken)
+    private async Task UpdateUserProgressAsync(
+        string userId,
+        int collectionId,
+        CancellationToken cancellationToken)
     {
         var (totalQuestions, answeredQuestions, correctAnswers) = 
-            await repository.CalculateProgressStatsAsync(userId, collectionId, cancellationToken);
+            await userProgressRepository.CalculateProgressStatsAsync(userId, collectionId, cancellationToken);
 
         var successRate = answeredQuestions > 0 ? (decimal)correctAnswers / answeredQuestions * 100 : 0;
 
-        var existingProgress = await repository.GetUserProgressAsync(userId, collectionId, cancellationToken);
+        var existingProgress = await userProgressRepository.GetUserProgressOrDefaultAsync(userId, collectionId, cancellationToken);
         
         if (existingProgress != null)
         {
@@ -92,15 +97,28 @@ public sealed class AnswerService(
             existingProgress.LastAnsweredAt = DateTime.UtcNow;
             existingProgress.UpdatedAt = DateTime.UtcNow;
             
-            await repository.UpdateUserProgressAsync(existingProgress, cancellationToken);
+            await userProgressRepository.UpdateUserProgressAsync(existingProgress, cancellationToken);
         }
         else
         {
             // Create new progress record
-            var newProgress = mapper.Map<UserProgress>(
-                            (currentUser, totalQuestions, answeredQuestions, correctAnswers, successRate, collectionId, userId));
-
-            await repository.CreateUserProgressAsync(newProgress, cancellationToken);
+            var newProgress = new UserProgress
+            {
+                UserId = userId,
+                Username = currentUser.Username,
+                Name = currentUser.Name,
+                TelegramUsername = currentUser.TelegramUsername,
+                CollectionId = collectionId,
+                TotalQuestions = totalQuestions,
+                AnsweredQuestions = answeredQuestions,
+                CorrectAnswers = correctAnswers,
+                SuccessRate = Math.Round(successRate, 2),
+                LastAnsweredAt = DateTime.UtcNow,
+                CreatedAt = DateTime.UtcNow,
+                IsActive = true
+            };
+            
+            await userProgressRepository.CreateUserProgressAsync(newProgress, cancellationToken);
         }
 
         logger.LogInformation("Updated progress for user {UserId} in collection {CollectionId}: {AnsweredQuestions}/{TotalQuestions} answered, {CorrectAnswers} correct",
