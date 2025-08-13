@@ -121,7 +121,7 @@ public sealed class QuestionProfile : Profile
         CreateMap<UpdateOutputPredictionMetaDataDto, UpdateOutputPredictionMetaData>();
         CreateMap<UpdateCodeWritingMetaDataDto, UpdateCodeWritingMetaData>();
         
-        CreateMap<UpdateQuestionMetadataDto, UpdateQuestionMetadata>();
+        CreateMap<UpdateQuestionCategoryDto, UpdateQuestionMetadata>();
         CreateMap<UpdateQuestionOptionDto, UpdateQuestionOption>();
         CreateMap<UpdateTestCaseDto, UpdateTestCase>();
         
