@@ -11,19 +11,11 @@ public interface IQuestionService
         int pageSize,
         CancellationToken cancellationToken = default);
     Task<List<QuestionResponse>> GetPreviewQuestionsAsync(int collectionId, CancellationToken cancellationToken = default);
-
-
-
-    // for posting questions
     Task<Result<QuestionResponse>> CreateQuestionAsync(
-
         string type,
         string subcategory,
         string difficulty,
         string prompt,
         int estimatedTimeMinutes,
         CancellationToken cancellationToken = default);
-
-    // for getting a specific question by ID
-    Task<Result<QuestionResponse>> GetQuestionByIdAsync(int questionId, CancellationToken cancellationToken = default);
-} 
+}

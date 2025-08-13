@@ -5,6 +5,8 @@ using Quiz.CSharp.Api.Contracts;
 using Quiz.CSharp.Data.Services;
 using Quiz.Shared.Authentication;
 using Quiz.Shared.Common;
+using Quiz.CSharp.Data.Entities;
+
 
 public sealed class QuestionService(
     ICSharpRepository repository,
@@ -57,13 +59,15 @@ public sealed class QuestionService(
         return mapper.Map<List<QuestionResponse>>(questions);
     }
 
-    public Task<Result<QuestionResponse>> CreateQuestionAsync(string type, string subcategory, string difficulty, string prompt, int estimatedTimeMinutes, CancellationToken cancellationToken = default)
+    public async Task<Result<QuestionResponse>> CreateQuestionAsync(string Type, string Subcategory, string Difficulty, string Prompt, int EstimatedTimeMinutes, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        var question = mapper.Map<Question>((Type, Subcategory, Difficulty, Prompt, EstimatedTimeMinutes));
+
+
+        await repository.CreateQuestionAsync(question, cancellationToken);
+
+        var response = mapper.Map<QuestionResponse>(question);
+        return Result<QuestionResponse>.Success(response);
     }
 
-    public Task<Result<QuestionResponse>> GetQuestionByIdAsync(int questionId, CancellationToken cancellationToken = default)
-    {
-        throw new NotImplementedException();
-    }
-} 
+}

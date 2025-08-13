@@ -4,6 +4,10 @@ using AutoMapper;
 using Quiz.CSharp.Api.Contracts;
 using Quiz.CSharp.Data.Entities;
 using System.Text.Json;
+using Quiz.CSharp.Api.Models;
+using System.Data.Common;
+using Microsoft.CodeAnalysis;
+using Microsoft.AspNetCore.SignalR;
 
 public sealed class QuestionProfile : Profile
 {
@@ -65,7 +69,7 @@ public sealed class QuestionProfile : Profile
         public string? Input { get; set; }
         public string? ExpectedOutput { get; set; }
     }
-
+    
     public QuestionProfile()
     {
         CreateMap<Question, QuestionResponse>()
@@ -76,12 +80,19 @@ public sealed class QuestionProfile : Profile
             .ForMember(dest => dest.Hints, opt => opt.MapFrom(src => GetHints(src)))
             .ForMember(dest => dest.Explanation, opt => opt.MapFrom(src => GetExplanation(src)));
 
-        CreateMap<Question, QuestionMetadata>()
+        CreateMap<CreateQuestionRequest, Question>()
+            .ForMember(dest => dest.Subcategory, opt => opt.MapFrom(src => src.Subcategory))
+            .ForMember(dest => dest.Difficulty, opt => opt.MapFrom(src => src.Difficulty))
+            .ForMember(dest => dest.Prompt, opt => opt.MapFrom(src => src.Prompt))
+            .ForMember(dest => dest.EstimatedTimeMinutes, opt => opt.MapFrom(src => src.EstimatedTimeMinutes))
+            .ForMember(dest => dest.Metadata, opt => opt.MapFrom(src => src.Metadata));
+
+        CreateMap<Question, Models.QuestionMetadata>()
             .ForMember(dest => dest.CollectionId, opt => opt.MapFrom(src => src.CollectionId))
             .ForMember(dest => dest.CollectionCode, opt => opt.MapFrom(src => src.Collection.Code))
             .ForMember(dest => dest.EstimatedTime, opt => opt.MapFrom(src => src.EstimatedTimeMinutes));
 
-        CreateMap<Question, QuestionContent>()
+        CreateMap<Question, Models.QuestionContent>()
             .ForMember(dest => dest.CodeBefore, opt => opt.MapFrom(src => GetCodeBefore(src)))
             .ForMember(dest => dest.CodeAfter, opt => opt.MapFrom(src => GetCodeAfter(src)))
             .ForMember(dest => dest.CodeWithBlank, opt => opt.MapFrom(src => GetCodeWithBlank(src)))
@@ -92,7 +103,7 @@ public sealed class QuestionProfile : Profile
 
         CreateMap<MCQOptionData, MCQOptionResponse>()
             .ForMember(dest => dest.Option, opt => opt.MapFrom(src => src.Text));
-            
+
         CreateMap<TestCaseData, TestCaseResponse>();
     }
 
@@ -275,4 +286,4 @@ public sealed class QuestionProfile : Profile
             return null;
         }
     }
-} 
+}
