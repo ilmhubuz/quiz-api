@@ -11,7 +11,6 @@ public sealed class SubscriptionService(
 {
     private const string SubscriptionClaimType = "ustoz-membership";
     
-    // Feature access mapping - defines which subscriptions grant access to which features
     private static readonly Dictionary<string, HashSet<string>> FeatureAccessMap = new()
     {
         ["csharp-quiz"] = ["csharp-quiz"],
@@ -43,7 +42,6 @@ public sealed class SubscriptionService(
             return Task.FromResult(false);
         }
 
-        // Check if any of the user's subscriptions grant access to the requested feature
         foreach (var subscription in userSubscription.Subscriptions)
         {
             if (FeatureAccessMap.TryGetValue(subscription, out var grantedFeatures) && 
@@ -62,7 +60,7 @@ public sealed class SubscriptionService(
 
     public async Task<IReadOnlyList<string>> GetAvailableFeaturesAsync(CancellationToken cancellationToken = default)
     {
-        if (!currentUser.IsAuthenticated)
+        if (currentUser.IsAuthenticated is false)
             return [];
 
         var userSubscription = await GetUserSubscriptionAsync(cancellationToken);
@@ -72,15 +70,9 @@ public sealed class SubscriptionService(
         var availableFeatures = new HashSet<string>();
         
         foreach (var subscription in userSubscription.Subscriptions)
-        {
             if (FeatureAccessMap.TryGetValue(subscription, out var grantedFeatures))
-            {
                 foreach (var feature in grantedFeatures)
-                {
                     availableFeatures.Add(feature);
-                }
-            }
-        }
 
         return availableFeatures.ToList();
     }
@@ -90,17 +82,14 @@ public sealed class SubscriptionService(
         if (!currentUser.IsAuthenticated || string.IsNullOrEmpty(currentUser.UserId))
             return Task.FromResult<UserSubscription?>(null);
 
-        // Extract subscription claims from the JWT token
         var subscriptionClaims = ExtractSubscriptionClaims();
         
-        if (!subscriptionClaims.Any())
+        if (subscriptionClaims.Any() is false)
         {
             logger.LogWarning("No subscription claims found for user {UserId}", currentUser.UserId);
             return Task.FromResult<UserSubscription?>(null);
         }
 
-        // For now, we assume subscriptions don't expire unless specified in the token
-        // In a real implementation, you might want to check against a database
         var expiresAt = ExtractExpirationClaim();
 
         var subscription = new UserSubscription
