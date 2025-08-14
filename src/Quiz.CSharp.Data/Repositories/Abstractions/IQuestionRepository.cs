@@ -10,4 +10,7 @@ public interface IQuestionRepository
     Task<IReadOnlyList<Question>> GetPreviewQuestionsAsync(int collectionId, CancellationToken cancellationToken = default);
     Task<Question?> GetSingleOrDefaultAsync(int questionId, CancellationToken cancellationToken = default);
     Task<Question> CreateQuestionAsync(Question question, CancellationToken cancellationToken = default);
+
+    Task<Collection?> GetCollectionSingleOrDefaultAsync(int collectionId, CancellationToken cancellationToken = default);
+    Task UpdateQuestionAsync(Question question, CancellationToken cancellationToken = default);
 }

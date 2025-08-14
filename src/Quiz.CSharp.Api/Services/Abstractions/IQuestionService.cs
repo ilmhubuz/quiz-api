@@ -1,6 +1,3 @@
-using Quiz.CSharp.Data.Models;
-
-namespace Quiz.CSharp.Api.Services;
 namespace Quiz.CSharp.Api.Services.Abstractions;
 
 using Quiz.CSharp.Api.Contracts;
@@ -17,6 +14,4 @@ public interface IQuestionService
 
     Task<QuestionResponse> UpdateQuestionAsync(int collectionId, int questionId, Dtos.Question.UpdateQuestion updateQuestion,
         CancellationToken cancellationToken);
-
-    List<QuestionHint> CreateHintsFromExplanation(string? explanation);
-} 
+}

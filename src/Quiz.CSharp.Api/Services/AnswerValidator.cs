@@ -1,7 +1,6 @@
 namespace Quiz.CSharp.Api.Services;
 
 using Quiz.CSharp.Data.Entities;
-using Quiz.CSharp.Data.ValueObjects;
 using System.Text.Json;
 using Quiz.CSharp.Api.Services.Abstractions;
 

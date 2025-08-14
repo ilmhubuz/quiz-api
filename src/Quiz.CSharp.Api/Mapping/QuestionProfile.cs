@@ -1,11 +1,9 @@
-using System.Text.Json.Serialization;
-using Quiz.CSharp.Data.Models;
-
 namespace Quiz.CSharp.Api.Mapping;
 
 using AutoMapper;
 using Quiz.CSharp.Api.Contracts;
 using Quiz.CSharp.Data.Entities;
+using Quiz.CSharp.Data.Models;
 using System.Text.Json;
 
 public sealed class QuestionProfile : Profile
@@ -104,50 +102,50 @@ public sealed class QuestionProfile : Profile
         CreateMap<CreateQuestionRequest, OutputPredictionQuestion>();
         CreateMap<CreateQuestionRequest, CodeWritingQuestion>();
         
-        CreateMap<Dtos.Question.UpdateQuestion, UpdateQuestion>()
-            .ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
-        
-        CreateMap<Dtos.Question.UpdateQuestionMetaData, UpdateQuestionMetaData>()
-            .ForMember(d => d.Options, o => o.Condition(s => s.Options != null))
-            .ForMember(d => d.Answer, o => o.Condition(s => s.Answer != null))
-            .ForMember(d => d.TestCases, o => o.Condition(s => s.TestCases != null))
-            .ForMember(d => d.Examples, o => o.Condition(s => s.Examples != null))
-            .ForMember(d => d.Rubric, o => o.Condition(s => s.Rubric != null))
-            .ForAllMembers(o => o.Condition((src, dest, srcMember) => srcMember != null));
+        CreateMap<Dtos.Question.UpdateQuestion, Data.Models.UpdateQuestion>();
       
-        CreateMap<Dtos.Question.UpdateQuestionOption, UpdateQuestionOption>()
-            .ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));;
-       
-        CreateMap<Dtos.Question.UpdateTestCase, UpdateTestCase>()
-               .ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));;
-
-        CreateMap<UpdateQuestion, Question>()
-            .ForMember(dest => dest.Metadata, opt => opt.MapFrom(src => SerializeUpdateQuestionMetaData(src.Metadata)))
-            .ForAllMembers(o => o.Condition((src, dest, srcMember) => srcMember != null));
+        CreateMap<Dtos.Question.UpdateQuestionMetadataBase, Data.Models.UpdateQuestionMetadataBase>()
+          .Include<Dtos.Question.CodeWritingMetadata, Data.Models.CodeWritingMetadata>()
+          .Include<Dtos.Question.ErrorSpottingMetadata, Data.Models.ErrorSpottingMetadata>()
+          .Include<Dtos.Question.FillInTheBlankMetadata, Data.Models.FillInTheBlankMetadata>()
+          .Include<Dtos.Question.McqMetadata, Data.Models.McqMetadata>()
+          .Include<Dtos.Question.OutputPredictionMetadata, Data.Models.OutputPredictionMetadata>()
+          .Include<Dtos.Question.TrueFalseMetadata, Data.Models.TrueFalseMetadata>();   
+      
+        CreateMap<Dtos.Question.CodeWritingMetadata, Data.Models.CodeWritingMetadata>();
+        CreateMap<Dtos.Question.ErrorSpottingMetadata, Data.Models.ErrorSpottingMetadata>();
+        CreateMap<Dtos.Question.FillInTheBlankMetadata, Data.Models.FillInTheBlankMetadata>();
+        CreateMap<Dtos.Question.McqMetadata, Data.Models.McqMetadata>();
+        CreateMap<Dtos.Question.McqOptionDto, Data.Models.McqOptionDto>();
+        CreateMap<Dtos.Question.OutputPredictionMetadata, Data.Models.OutputPredictionMetadata>();
+        CreateMap<Dtos.Question.TrueFalseMetadata, Data.Models.TrueFalseMetadata>();
+        
+        CreateMap<Data.Models.UpdateQuestion, Data.Entities.Question>()
+            .ForMember(dest => dest.Metadata, opt 
+                => opt.MapFrom(src => SerializeMetadataWithHints(src.Metadata)));
     }
     
-    private string SerializeUpdateQuestionMetaData(UpdateQuestionMetaData updateQuestionMetaData)
+    private string SerializeMetadataWithHints(UpdateQuestionMetadataBase updateQuestionMetadataBase)
     {
-        var options = new JsonSerializerOptions
+        if (string.IsNullOrWhiteSpace(updateQuestionMetadataBase?.Explanation) is false)
         {
-            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
-            PropertyNamingPolicy = null
-        };
-        
-        if (string.IsNullOrWhiteSpace(updateQuestionMetaData?.Explanation) is false)
-        {
-            updateQuestionMetaData.Hints =
+            updateQuestionMetadataBase.Hints =
             [
-                new QuestionHint
+                new Data.Models.QuestionHint
                 {
-                    Hint = updateQuestionMetaData.Explanation,
+                    Hint = updateQuestionMetadataBase.Explanation,
                     OrderIndex = 1
                 }
             ];
         }
         
-        return JsonSerializer.Serialize(updateQuestionMetaData, options);
+        var options = new JsonSerializerOptions();
+        options.PropertyNamingPolicy = null;
+
+
+        return JsonSerializer.Serialize(updateQuestionMetadataBase, options);
     }
+
 
     private static string GetQuestionType(Question question)
     {
@@ -328,4 +326,4 @@ public sealed class QuestionProfile : Profile
             return null;
         }
     }
-} 
+}

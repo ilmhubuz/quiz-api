@@ -1,9 +1,6 @@
-using Microsoft.Extensions.Logging;
-using Quiz.CSharp.Api.Dtos.Question;
 using Quiz.CSharp.Data.Entities;
-using Quiz.CSharp.Data.Models;
+using Quiz.CSharp.Data.Repositories.Abstractions;
 using Quiz.Shared.Exceptions;
-using UpdateQuestion = Quiz.CSharp.Data.Models.UpdateQuestion;
 
 namespace Quiz.CSharp.Api.Services;
 
@@ -71,7 +68,7 @@ public sealed class QuestionService(
 
     public async Task<QuestionResponse> UpdateQuestionAsync(int collectionId, int questionId, Dtos.Question.UpdateQuestion updateQuestion, CancellationToken cancellationToken)
     {
-        var question = await questionRepository.GetQuestionSingleOrDefaultAsync(questionId, cancellationToken);
+        var question = await questionRepository.GetSingleOrDefaultAsync(questionId, cancellationToken);
         if (question is null)
             throw new CustomNotFoundException($"{nameof(Question)} not found.");
 
@@ -84,25 +81,7 @@ public sealed class QuestionService(
         mapper.Map(mappedQuestionModel, question);
         question.UpdatedAt = DateTime.UtcNow;    
         await questionRepository.UpdateQuestionAsync(question, cancellationToken);
-        await repository.UpdateQuestionAsync(question, cancellationToken);
         
         return mapper.Map<QuestionResponse>(question);
     }
-
-    public List<QuestionHint> CreateHintsFromExplanation(string? explanation)
-    {
-        var hints = new List<QuestionHint>();
-        
-        if (!string.IsNullOrWhiteSpace(explanation))
-        {
-            hints.Add(new QuestionHint
-            {
-                Hint = explanation,
-                OrderIndex = 1
-            });
-        }
-
-        return hints;
-    }
-    
 }

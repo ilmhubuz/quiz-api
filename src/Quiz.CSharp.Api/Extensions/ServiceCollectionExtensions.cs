@@ -1,7 +1,3 @@
-using Microsoft.Extensions.Configuration;
-using Microsoft.OpenApi.Models;
-using Quiz.CSharp.Api.Services.Quiz.CSharp.Api.Services.Abstractions;
-
 namespace Quiz.CSharp.Api.Extensions;
 
 using FluentValidation;

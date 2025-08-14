@@ -4,6 +4,7 @@ using Quiz.Infrastructure.Extensions;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Quiz.CSharp.Api.Middlewares;
+using Quiz.CSharp.Data.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
