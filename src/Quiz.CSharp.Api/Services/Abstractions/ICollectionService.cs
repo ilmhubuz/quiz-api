@@ -10,4 +10,4 @@ public interface ICollectionService
         CancellationToken cancellationToken = default);
     Task<List<CollectionResponse>> UpdateCollectionAsync(int id, UpdateCollectionRequest nextRequest,
         CancellationToken cancellationToken = default);
-} 
+}
