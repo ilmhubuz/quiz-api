@@ -30,6 +30,7 @@ public sealed class CollectionRepository(ICSharpDbContext context) : ICollection
             .ToListAsync(cancellationToken);
     public async Task<bool> CollectionExistsAsync(string code, CancellationToken cancellationToken = default)
         => await context.Collections.AnyAsync(c => c.Code == code && c.IsActive, cancellationToken);
+        
     public async Task<List<int>> GetAnsweredCollectionIdsByUserIdAsync(
         string userId,
         CancellationToken cancellationToken = default)

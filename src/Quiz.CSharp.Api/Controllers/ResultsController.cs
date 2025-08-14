@@ -6,6 +6,7 @@ using Quiz.CSharp.Api.Contracts.Reviews;
 using Quiz.CSharp.Api.Services.Abstractions;
 using Quiz.Shared.Contracts;
 using Quiz.Infrastructure.Authentication;
+using Quiz.Infrastructure.Exceptions;
 
 [ApiController]
 [Route("api/csharp/results")]
@@ -24,11 +25,10 @@ public sealed class ResultsController(IResultsService resultsService) : Controll
     {
         var result = await resultsService.GetAnswerReviewAsync(collectionId, includeUnanswered, cancellationToken);
         
-        return result.IsSuccess
-            ? Ok(new ApiResponse<List<QuestionReviewResponse>>(result.Value))
-            : BadRequest(new ApiResponse<List<QuestionReviewResponse>>(
-                Success: false,
-                Message: result.ErrorMessage));
+        if (result.IsSuccess is false)
+            throw new CustomBadRequestException(result.ErrorMessage ?? "Unable to retrieve answer review");
+
+        return Ok(new ApiResponse<List<QuestionReviewResponse>>(result.Value));
     }
 
     [HttpPost("sessions/{sessionId}/complete")]
@@ -41,11 +41,10 @@ public sealed class ResultsController(IResultsService resultsService) : Controll
         CancellationToken cancellationToken)
     {
         var result = await resultsService.CompleteSessionAsync(sessionId, request, cancellationToken);
-        
-        return result.IsSuccess
-            ? Ok(new ApiResponse<SessionResultsResponse>(result.Value))
-            : BadRequest(new ApiResponse<SessionResultsResponse>(
-                Success: false,
-                Message: result.ErrorMessage));
+
+        if (result.IsSuccess is false)
+            throw new CustomBadRequestException(result.ErrorMessage ?? "Invalid session completion request");
+
+        return Ok(new ApiResponse<SessionResultsResponse>(result.Value));
     }
 } 

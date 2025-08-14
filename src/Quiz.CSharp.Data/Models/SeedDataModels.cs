@@ -127,9 +127,7 @@ public class AnswerConverter : JsonConverter<List<string>>
                     break;
                 
                 if (reader.TokenType == JsonTokenType.String)
-                {
                     list.Add(reader.GetString() ?? string.Empty);
-                }
             }
             return list;
         }
@@ -140,16 +138,12 @@ public class AnswerConverter : JsonConverter<List<string>>
     public override void Write(Utf8JsonWriter writer, List<string> value, JsonSerializerOptions options)
     {
         if (value.Count == 1)
-        {
             writer.WriteStringValue(value[0]);
-        }
         else
         {
             writer.WriteStartArray();
             foreach (var item in value)
-            {
                 writer.WriteStringValue(item);
-            }
             writer.WriteEndArray();
         }
     }

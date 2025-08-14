@@ -14,7 +14,6 @@ public sealed class ResultsService(
     ICurrentUser currentUser,
     IAnswerValidator answerValidator) : IResultsService
 {
-    // Internal metadata classes for deserialization
     private class QuestionMetadataBase
     {
         public string? CodeBefore { get; set; }
@@ -124,7 +123,10 @@ public sealed class ResultsService(
             if (question == null)
                 continue;
 
-            var isCorrect = await answerValidator.ValidateAnswerAsync(question, answer.Answer, cancellationToken);
+            var isCorrect = await answerValidator.ValidateAnswerAsync(
+                question,
+                answer.Answer,
+                cancellationToken);
             if (isCorrect)
                 correctCount++;
 
@@ -159,8 +161,7 @@ public sealed class ResultsService(
     private QuestionReviewResponse BuildQuestionReview(Question question, UserAnswer? userAnswer)
     {
         UserAnswerReview? userAnswerReview = null;
-        if (userAnswer != null)
-        {
+        if (userAnswer is not null)
             userAnswerReview = new UserAnswerReview
             {
                 Answer = userAnswer.Answer,
@@ -168,7 +169,6 @@ public sealed class ResultsService(
                 SubmittedAt = userAnswer.SubmittedAt,
                 TimeSpentSeconds = userAnswer.TimeSpentSeconds
             };
-        }
 
         return BuildQuestionReview(question, userAnswerReview);
     }
@@ -269,7 +269,7 @@ public sealed class ResultsService(
             {
                 Input = tc.Input ?? string.Empty,
                 ExpectedOutput = tc.ExpectedOutput ?? string.Empty,
-                UserOutput = null, // Would need to run tests to get this
+                UserOutput = null, 
                 Passed = false
             }).ToList();
 
@@ -281,8 +281,7 @@ public sealed class ResultsService(
     }
 
     private string GetQuestionType(Question question)
-    {
-        return question switch
+        => question switch
         {
             MCQQuestion => "MCQ",
             TrueFalseQuestion => "TrueFalse",
@@ -292,11 +291,11 @@ public sealed class ResultsService(
             CodeWritingQuestion => "CodeWriting",
             _ => "Unknown"
         };
-    }
 
     private string? GetCodeWithBlank(Question question)
     {
-        if (question is not FillQuestion) return null;
+        if (question is not FillQuestion)
+            return null;
         var metadata = JsonSerializer.Deserialize<FillMetadata>(question.Metadata);
         var codeWithBlank = metadata?.CodeWithBlank;
         return string.IsNullOrWhiteSpace(codeWithBlank) ? null : codeWithBlank;
@@ -304,7 +303,8 @@ public sealed class ResultsService(
 
     private string? GetCodeWithError(Question question)
     {
-        if (question is not ErrorSpottingQuestion) return null;
+        if (question is not ErrorSpottingQuestion)
+            return null;
         var metadata = JsonSerializer.Deserialize<ErrorSpottingMetadata>(question.Metadata);
         var codeWithError = metadata?.CodeWithError;
         return string.IsNullOrWhiteSpace(codeWithError) ? null : codeWithError;
@@ -312,7 +312,8 @@ public sealed class ResultsService(
 
     private string? GetSnippet(Question question)
     {
-        if (question is not OutputPredictionQuestion) return null;
+        if (question is not OutputPredictionQuestion)
+            return null;
         var metadata = JsonSerializer.Deserialize<OutputPredictionMetadata>(question.Metadata);
         var snippet = metadata?.Snippet;
         return string.IsNullOrWhiteSpace(snippet) ? null : snippet;

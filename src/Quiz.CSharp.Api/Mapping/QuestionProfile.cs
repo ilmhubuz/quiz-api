@@ -7,7 +7,6 @@ using System.Text.Json;
 
 public sealed class QuestionProfile : Profile
 {
-    // Internal metadata classes for deserialization
     private class QuestionMetadataBase
     {
         public string? CodeBefore { get; set; }
@@ -112,7 +111,8 @@ public sealed class QuestionProfile : Profile
 
     private static ICollection<MCQOptionResponse>? GetMCQOptions(Question question)
     {
-        if (question is not MCQQuestion) return null;
+        if (question is not MCQQuestion)
+            return null;
 
         try
         {
@@ -192,7 +192,8 @@ public sealed class QuestionProfile : Profile
 
     private static string? GetCodeWithBlank(Question question)
     {
-        if (question is not FillQuestion) return null;
+        if (question is not FillQuestion)
+            return null;
 
         try
         {
@@ -208,7 +209,8 @@ public sealed class QuestionProfile : Profile
 
     private static string? GetCodeWithError(Question question)
     {
-        if (question is not ErrorSpottingQuestion) return null;
+        if (question is not ErrorSpottingQuestion)
+            return null;
 
         try
         {
@@ -224,7 +226,8 @@ public sealed class QuestionProfile : Profile
 
     private static string? GetSnippet(Question question)
     {
-        if (question is not OutputPredictionQuestion) return null;
+        if (question is not OutputPredictionQuestion)
+            return null;
 
         try
         {
@@ -240,7 +243,8 @@ public sealed class QuestionProfile : Profile
 
     private static ICollection<string>? GetExamples(Question question)
     {
-        if (question is not CodeWritingQuestion) return null;
+        if (question is not CodeWritingQuestion)
+            return null;
 
         try
         {
@@ -257,7 +261,8 @@ public sealed class QuestionProfile : Profile
 
     private static ICollection<TestCaseResponse>? GetTestCases(Question question)
     {
-        if (question is not CodeWritingQuestion) return null;
+        if (question is not CodeWritingQuestion)
+            return null;
 
         try
         {

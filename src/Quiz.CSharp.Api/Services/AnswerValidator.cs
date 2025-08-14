@@ -1,13 +1,11 @@
 namespace Quiz.CSharp.Api.Services;
 
 using Quiz.CSharp.Data.Entities;
-using Quiz.CSharp.Data.ValueObjects;
 using System.Text.Json;
 using Quiz.CSharp.Api.Services.Abstractions;
 
 public sealed class AnswerValidator : IAnswerValidator
 {
-    // Internal metadata classes matching the structure from DataSeedingService
     private class MCQMetadata
     {
         public List<MCQOptionData> Options { get; set; } = [];
@@ -69,7 +67,8 @@ public sealed class AnswerValidator : IAnswerValidator
         try
         {
             var metadata = JsonSerializer.Deserialize<MCQMetadata>(question.Metadata);
-            if (metadata == null) return false;
+            if (metadata == null)
+                return false;
 
             var userAnswers = JsonSerializer.Deserialize<string[]>(userAnswer);
             var correctAnswers = metadata.CorrectAnswerIds.ToArray();
@@ -88,12 +87,12 @@ public sealed class AnswerValidator : IAnswerValidator
         try
         {
             var metadata = JsonSerializer.Deserialize<TrueFalseMetadata>(question.Metadata);
-            if (metadata == null) return false;
+            if (metadata == null)
+                return false;
 
             if (bool.TryParse(userAnswer, out var parsed))
-            {
                 return parsed == metadata.CorrectAnswer;
-            }
+
             return false;
         }
         catch
@@ -107,7 +106,8 @@ public sealed class AnswerValidator : IAnswerValidator
         try
         {
             var metadata = JsonSerializer.Deserialize<FillMetadata>(question.Metadata);
-            if (metadata?.CorrectAnswer == null) return false;
+            if (metadata?.CorrectAnswer == null)
+                return false;
 
             var normalizeCode = (string code) => code.Replace("```csharp", "").Replace("```", "").Trim();
             return normalizeCode(metadata.CorrectAnswer) == normalizeCode(userAnswer);
@@ -123,7 +123,8 @@ public sealed class AnswerValidator : IAnswerValidator
         try
         {
             var metadata = JsonSerializer.Deserialize<ErrorSpottingMetadata>(question.Metadata);
-            if (metadata?.CorrectAnswer == null) return false;
+            if (metadata?.CorrectAnswer == null)
+                return false;
 
             var normalizeCode = (string code) => code.Replace("```csharp", "").Replace("```", "").Trim();
             return normalizeCode(metadata.CorrectAnswer) == normalizeCode(userAnswer);
@@ -139,7 +140,8 @@ public sealed class AnswerValidator : IAnswerValidator
         try
         {
             var metadata = JsonSerializer.Deserialize<OutputPredictionMetadata>(question.Metadata);
-            if (metadata?.ExpectedOutput == null) return false;
+            if (metadata?.ExpectedOutput == null)
+                return false;
 
             return string.Equals(metadata.ExpectedOutput.Trim(), userAnswer.Trim(), StringComparison.OrdinalIgnoreCase);
         }
@@ -150,9 +152,5 @@ public sealed class AnswerValidator : IAnswerValidator
     }
 
     private static bool ValidateCodeWritingAnswer(CodeWritingQuestion question, string userAnswer)
-    {
-        // For code writing questions, we just check if an answer was provided
-        // In a real scenario, you might run tests or use more sophisticated validation
-        return !string.IsNullOrWhiteSpace(userAnswer);
-    }
+        => !string.IsNullOrWhiteSpace(userAnswer);
 } 

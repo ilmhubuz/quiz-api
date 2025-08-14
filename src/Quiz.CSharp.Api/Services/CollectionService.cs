@@ -7,8 +7,7 @@ using Quiz.CSharp.Data.Entities;
 using Quiz.CSharp.Data.Repositories.Abstractions;
 using Quiz.Shared.Authentication;
 using Quiz.CSharp.Data.ValueObjects;
-using Quiz.Shared.Common;
-using Quiz.CSharp.Api.Services.Abstractions;
+using Quiz.Infrastructure.Exceptions;
 using Microsoft.Extensions.Logging;
 
 public sealed class CollectionService(
@@ -26,10 +25,9 @@ public sealed class CollectionService(
 
         foreach (var collectionWithCount in collectionsWithCounts)
         {
-            var response = mapper.Map<CollectionResponse>(collectionWithCount.Collection);
-            response = response with { TotalQuestions = collectionWithCount.QuestionCount };
+            var response = mapper.Map<CollectionResponse>(collectionWithCount.Collection)
+                with { TotalQuestions = collectionWithCount.QuestionCount };
 
-            // Add user progress if authenticated
             if (currentUser.IsAuthenticated && currentUser.UserId is not null)
             {
                 var userProgress = await userProgressRepository.GetUserProgressOrDefaultAsync(
@@ -38,12 +36,10 @@ public sealed class CollectionService(
                     cancellationToken);
 
                 if (userProgress is not null)
-                {
                     response = response with
                     {
                         UserProgress = mapper.Map<UserProgressResponse>(userProgress)
                     };
-                }
             }
 
             responses.Add(response);
@@ -52,19 +48,15 @@ public sealed class CollectionService(
         return responses;
     }
 
-    public async Task<Result<CreateCollectionResponse>> CreateCollectionWithQuestionsAsync(
+    public async Task<CreateCollectionResponse> CreateCollectionWithQuestionsAsync(
         CreateCollectionRequest request,
         CancellationToken cancellationToken = default)
     {
+        if (await collectionRepository.CollectionExistsAsync(request.Code, cancellationToken))
+            throw new CustomConflictException($"Collection with code '{request.Code}' already exists");
+
         try
         {
-            // Validate collection doesn't already exist
-            if (await collectionRepository.CollectionExistsAsync(request.Code, cancellationToken))
-            {
-                return Result<CreateCollectionResponse>.Failure($"Collection with code '{request.Code}' already exists");
-            }
-
-            // Create collection entity
             var collection = new Collection
             {
                 Code = request.Code,
@@ -76,10 +68,8 @@ public sealed class CollectionService(
                 IsActive = true
             };
 
-            // Save collection first to get the ID
             var createdCollection = await collectionRepository.CreateCollectionAsync(collection, cancellationToken);
 
-            // Create questions
             var questionsCreated = 0;
             foreach (var questionRequest in request.Questions)
             {
@@ -90,15 +80,13 @@ public sealed class CollectionService(
                     questionsCreated++;
                 }
                 else
-                {
                     logger.LogWarning("Failed to create question of type {Type}", questionRequest.Type);
-                }
             }
 
-            logger.LogInformation("Created collection {Code} with {QuestionCount} questions", 
+            logger.LogInformation("Created collection {Code} with {QuestionCount} questions",
                 request.Code, questionsCreated);
 
-            var response = new CreateCollectionResponse
+            return new CreateCollectionResponse
             {
                 Id = createdCollection.Id,
                 Code = createdCollection.Code,
@@ -109,13 +97,11 @@ public sealed class CollectionService(
                 QuestionsCreated = questionsCreated,
                 CreatedAt = createdCollection.CreatedAt
             };
-
-            return Result<CreateCollectionResponse>.Success(response);
         }
         catch (Exception ex)
         {
             logger.LogError(ex, "Error creating collection {Code}", request.Code);
-            return Result<CreateCollectionResponse>.Failure("An error occurred while creating the collection");
+            throw new CustomBadRequestException("An error occurred while creating the collection");
         }
     }
 
@@ -125,81 +111,86 @@ public sealed class CollectionService(
         if (questionType == null)
             return null;
 
+        var baseQuestion = new
+        {
+            CollectionId = collectionId,
+            request.Subcategory,
+            request.Difficulty,
+            request.Prompt,
+            request.EstimatedTimeMinutes,
+            request.Metadata,
+            CreatedAt = DateTime.UtcNow,
+            IsActive = true
+        };
+
         return questionType.Value switch
         {
-            QuestionType.MCQ => new MCQQuestion
-            {
-                CollectionId = collectionId,
-                Subcategory = request.Subcategory,
-                Difficulty = request.Difficulty,
-                Prompt = request.Prompt,
-                EstimatedTimeMinutes = request.EstimatedTimeMinutes,
-                Metadata = request.Metadata,
-                CreatedAt = DateTime.UtcNow,
-                IsActive = true
+            QuestionType.MCQ => new MCQQuestion { 
+                CollectionId = baseQuestion.CollectionId, 
+                Subcategory = baseQuestion.Subcategory, 
+                Difficulty = baseQuestion.Difficulty, 
+                Prompt = baseQuestion.Prompt, 
+                EstimatedTimeMinutes = baseQuestion.EstimatedTimeMinutes, 
+                Metadata = baseQuestion.Metadata, 
+                CreatedAt = baseQuestion.CreatedAt, 
+                IsActive = baseQuestion.IsActive 
             },
-            QuestionType.TrueFalse => new TrueFalseQuestion
-            {
-                CollectionId = collectionId,
-                Subcategory = request.Subcategory,
-                Difficulty = request.Difficulty,
-                Prompt = request.Prompt,
-                EstimatedTimeMinutes = request.EstimatedTimeMinutes,
-                Metadata = request.Metadata,
-                CreatedAt = DateTime.UtcNow,
-                IsActive = true
+            QuestionType.TrueFalse => new TrueFalseQuestion { 
+                CollectionId = baseQuestion.CollectionId, 
+                Subcategory = baseQuestion.Subcategory, 
+                Difficulty = baseQuestion.Difficulty, 
+                Prompt = baseQuestion.Prompt, 
+                EstimatedTimeMinutes = baseQuestion.EstimatedTimeMinutes, 
+                Metadata = baseQuestion.Metadata, 
+                CreatedAt = baseQuestion.CreatedAt, 
+                IsActive = baseQuestion.IsActive 
             },
-            QuestionType.Fill => new FillQuestion
-            {
-                CollectionId = collectionId,
-                Subcategory = request.Subcategory,
-                Difficulty = request.Difficulty,
-                Prompt = request.Prompt,
-                EstimatedTimeMinutes = request.EstimatedTimeMinutes,
-                Metadata = request.Metadata,
-                CreatedAt = DateTime.UtcNow,
-                IsActive = true
+            QuestionType.Fill => new FillQuestion { 
+                CollectionId = baseQuestion.CollectionId, 
+                Subcategory = baseQuestion.Subcategory, 
+                Difficulty = baseQuestion.Difficulty, 
+                Prompt = baseQuestion.Prompt, 
+                EstimatedTimeMinutes = baseQuestion.EstimatedTimeMinutes, 
+                Metadata = baseQuestion.Metadata, 
+                CreatedAt = baseQuestion.CreatedAt, 
+                IsActive = baseQuestion.IsActive 
             },
-            QuestionType.ErrorSpotting => new ErrorSpottingQuestion
-            {
-                CollectionId = collectionId,
-                Subcategory = request.Subcategory,
-                Difficulty = request.Difficulty,
-                Prompt = request.Prompt,
-                EstimatedTimeMinutes = request.EstimatedTimeMinutes,
-                Metadata = request.Metadata,
-                CreatedAt = DateTime.UtcNow,
-                IsActive = true
+            QuestionType.ErrorSpotting => new ErrorSpottingQuestion { 
+                CollectionId = baseQuestion.CollectionId, 
+                Subcategory = baseQuestion.Subcategory, 
+                Difficulty = baseQuestion.Difficulty, 
+                Prompt = baseQuestion.Prompt, 
+                EstimatedTimeMinutes = baseQuestion.EstimatedTimeMinutes, 
+                Metadata = baseQuestion.Metadata, 
+                CreatedAt = baseQuestion.CreatedAt, 
+                IsActive = baseQuestion.IsActive 
             },
-            QuestionType.OutputPrediction => new OutputPredictionQuestion
-            {
-                CollectionId = collectionId,
-                Subcategory = request.Subcategory,
-                Difficulty = request.Difficulty,
-                Prompt = request.Prompt,
-                EstimatedTimeMinutes = request.EstimatedTimeMinutes,
-                Metadata = request.Metadata,
-                CreatedAt = DateTime.UtcNow,
-                IsActive = true
+            QuestionType.OutputPrediction => new OutputPredictionQuestion { 
+                CollectionId = baseQuestion.CollectionId, 
+                Subcategory = baseQuestion.Subcategory, 
+                Difficulty = baseQuestion.Difficulty, 
+                Prompt = baseQuestion.Prompt, 
+                EstimatedTimeMinutes = baseQuestion.EstimatedTimeMinutes, 
+                Metadata = baseQuestion.Metadata, 
+                CreatedAt = baseQuestion.CreatedAt, 
+                IsActive = baseQuestion.IsActive 
             },
-            QuestionType.CodeWriting => new CodeWritingQuestion
-            {
-                CollectionId = collectionId,
-                Subcategory = request.Subcategory,
-                Difficulty = request.Difficulty,
-                Prompt = request.Prompt,
-                EstimatedTimeMinutes = request.EstimatedTimeMinutes,
-                Metadata = request.Metadata,
-                CreatedAt = DateTime.UtcNow,
-                IsActive = true
+            QuestionType.CodeWriting => new CodeWritingQuestion { 
+                CollectionId = baseQuestion.CollectionId, 
+                Subcategory = baseQuestion.Subcategory, 
+                Difficulty = baseQuestion.Difficulty, 
+                Prompt = baseQuestion.Prompt, 
+                EstimatedTimeMinutes = baseQuestion.EstimatedTimeMinutes, 
+                Metadata = baseQuestion.Metadata, 
+                CreatedAt = baseQuestion.CreatedAt, 
+                IsActive = baseQuestion.IsActive 
             },
             _ => null
         };
     }
 
-    private static QuestionType? GetQuestionTypeFromString(string typeString)
-    {
-        return typeString.ToLowerInvariant() switch
+    private static QuestionType? GetQuestionTypeFromString(string typeString) =>
+        typeString.ToLowerInvariant() switch
         {
             "mcq" => QuestionType.MCQ,
             "true_false" => QuestionType.TrueFalse,
@@ -209,5 +200,4 @@ public sealed class CollectionService(
             "code_writing" => QuestionType.CodeWriting,
             _ => null
         };
-    }
-} 
+}
