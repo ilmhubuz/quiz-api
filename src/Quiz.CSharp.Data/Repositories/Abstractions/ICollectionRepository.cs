@@ -1,3 +1,5 @@
+using Quiz.CSharp.Data.Services;
+
 namespace Quiz.CSharp.Data.Repositories.Abstractions;
 
 public interface ICollectionRepository
@@ -9,4 +11,5 @@ public interface ICollectionRepository
     Task<List<int>> GetAnsweredCollectionIdsByUserIdAsync(
         string userId,
         CancellationToken cancellationToken = default);
+    Task<List<Collection>> UpdateCollectionAsync(int id, Collection updatedCollection, CancellationToken cancellationToken = default);
 }

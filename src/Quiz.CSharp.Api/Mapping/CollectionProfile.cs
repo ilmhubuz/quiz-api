@@ -26,7 +26,7 @@ public sealed class CollectionProfile : Profile
             .ForMember(dest => dest.AnsweredQuestions, opt => opt.MapFrom(src => src.AnsweredQuestions))
             .ForMember(dest => dest.CorrectAnswers, opt => opt.MapFrom(src => src.CorrectAnswers))
             .ForMember(dest => dest.SuccessRate, opt => opt.MapFrom(src => src.SuccessRate))
-            .ForMember(dest => dest.CompletionRate, opt => opt.MapFrom(src => 
+            .ForMember(dest => dest.CompletionRate, opt => opt.MapFrom(src =>
                 src.TotalQuestions > 0 ? (decimal)src.AnsweredQuestions / src.TotalQuestions * 100 : 0));
 
         CreateMap<UserProgress, UserProgressManagementResponse>()
@@ -41,7 +41,7 @@ public sealed class CollectionProfile : Profile
             .ForMember(dest => dest.AnsweredQuestions, opt => opt.MapFrom(src => src.AnsweredQuestions))
             .ForMember(dest => dest.CorrectAnswers, opt => opt.MapFrom(src => src.CorrectAnswers))
             .ForMember(dest => dest.SuccessRate, opt => opt.MapFrom(src => src.SuccessRate))
-            .ForMember(dest => dest.CompletionRate, opt => opt.MapFrom(src => 
+            .ForMember(dest => dest.CompletionRate, opt => opt.MapFrom(src =>
                 src.TotalQuestions > 0 ? (decimal)src.AnsweredQuestions / src.TotalQuestions * 100 : 0))
             .ForMember(dest => dest.LastAnsweredAt, opt => opt.MapFrom(src => src.LastAnsweredAt))
             .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => src.CreatedAt))
@@ -56,10 +56,13 @@ public sealed class CollectionProfile : Profile
             .ForMember(dest => dest.AnsweredQuestions, opt => opt.MapFrom(src => src.AnsweredQuestions))
             .ForMember(dest => dest.CorrectAnswers, opt => opt.MapFrom(src => src.CorrectAnswers))
             .ForMember(dest => dest.SuccessRate, opt => opt.MapFrom(src => src.SuccessRate))
-            .ForMember(dest => dest.CompletionRate, opt => opt.MapFrom(src => 
+            .ForMember(dest => dest.CompletionRate, opt => opt.MapFrom(src =>
                 src.TotalQuestions > 0 ? (decimal)src.AnsweredQuestions / src.TotalQuestions * 100 : 0))
             .ForMember(dest => dest.LastAnsweredAt, opt => opt.MapFrom(src => src.LastAnsweredAt))
             .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => src.CreatedAt))
             .ForMember(dest => dest.UpdatedAt, opt => opt.MapFrom(src => src.UpdatedAt));
+
+        CreateMap<Collection, UpdateCollectionResponse>()
+            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id));
     }
-} 
+}

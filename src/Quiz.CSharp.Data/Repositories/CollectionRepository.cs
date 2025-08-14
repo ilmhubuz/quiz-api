@@ -38,10 +38,34 @@ public sealed class CollectionRepository(ICSharpDbContext context) : ICollection
             .Select(ua => ua.Question.CollectionId)
             .Distinct()
             .ToListAsync(cancellationToken);
+
+    public async Task<List<Collection>> UpdateCollectionAsync(int id, Collection updatedCollection, CancellationToken cancellationToken = default)
+    {
+        var collection = await context.Collections
+            .Include(c => c.Questions)
+            .FirstOrDefaultAsync(c => c.Id == id, cancellationToken);
+
+        if (collection == null)
+            throw new KeyNotFoundException($"Collection with ID {id} not found.");
+
+        collection.Name = updatedCollection.Name;
+        collection.Description = updatedCollection.Description;
+
+        if (updatedCollection.Questions != null && updatedCollection.Questions.Any())
+        {
+            collection.Questions = updatedCollection.Questions;
+        }
+
+        await context.SaveChangesAsync(cancellationToken);
+
+        return await context.Collections
+            .Include(c => c.Questions)
+            .ToListAsync(cancellationToken);
+    }
 }
 
 public sealed class CollectionWithQuestionCount
 {
     public required Collection Collection { get; init; }
     public int QuestionCount { get; init; }
-} 
+}

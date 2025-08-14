@@ -16,8 +16,6 @@ builder.Services.AddControllers()
         options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
     });
 
-builder.Services.AddAutoMapper(typeof(Program).Assembly);
-
 builder.Services.AddSwaggerWithOAuth(builder.Configuration);
 
 builder.Services.AddInfrastructure(builder.Configuration);
