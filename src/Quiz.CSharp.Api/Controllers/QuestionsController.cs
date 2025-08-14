@@ -10,11 +10,11 @@ using Quiz.Infrastructure.Authentication;
 [ApiController]
 [Route("api/csharp/questions")]
 [Produces("application/json")]
-[RequireSubscription("csharp-quiz")]
 public sealed class QuestionsController(IQuestionService questionService) : ControllerBase
 {
     [HttpGet]
     [Authorize]
+    [RequireSubscription("csharp-quiz")]
     [ProducesResponseType<PaginatedApiResponse<QuestionResponse>>(StatusCodes.Status200OK)]
     public async Task<IActionResult> GetQuestions(
         [FromQuery] int collectionId,
@@ -43,5 +43,18 @@ public sealed class QuestionsController(IQuestionService questionService) : Cont
     {
         var questions = await questionService.GetPreviewQuestionsAsync(collectionId, cancellationToken);
         return Ok(new ApiResponse<List<QuestionResponse>>(questions));
+    }
+    
+    [HttpPut("{collectionId}/{questionId}")]
+    [Authorize(Policy = "Admin:Write")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<IActionResult> UpdateQuestion(
+        [FromRoute] int collectionId,
+        [FromRoute] int questionId,
+        [FromBody] Dtos.Question.UpdateQuestion updateQuestion,
+        CancellationToken cancellationToken)
+    {
+        var updatedQuestion = await questionService.UpdateQuestionAsync(collectionId, questionId, updateQuestion, cancellationToken);
+        return Ok(updatedQuestion);
     }
 } 

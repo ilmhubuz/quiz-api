@@ -41,10 +41,8 @@ public static class ServiceCollectionExtensions
 
         return services;
     }
-
-    public static IServiceCollection AddSwaggerWithOAuth(
-        this IServiceCollection services,
-        IConfiguration configuration)
+    
+    public static IServiceCollection AddSwaggerWithOAuth(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddEndpointsApiExplorer();
         services.AddSwaggerGen(c =>
@@ -93,14 +91,14 @@ public static class ServiceCollectionExtensions
                             Id = "oauth2"
                         }
                     },
-                    new[] { "openid", "profile", "email" }
+                    ["openid", "profile", "email"]
                 }
             });
         });
 
         return services;
     }
-
+    
     public static IServiceCollection AddAzureAppConfiguration(this IServiceCollection services, ConfigurationManager configuration)
     {
         var appConfigConnectionString = configuration["AppConfig:ConnectionString"];

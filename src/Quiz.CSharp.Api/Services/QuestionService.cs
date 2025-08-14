@@ -1,12 +1,8 @@
-namespace Quiz.CSharp.Api.Services;
-
-using AutoMapper;
-using Quiz.CSharp.Api.Contracts;
 using Quiz.CSharp.Data.Entities;
 using Quiz.CSharp.Data.Repositories.Abstractions;
-using Quiz.Shared.Authentication;
-using Quiz.Shared.Common;
-using Quiz.CSharp.Api.Services.Abstractions;
+using Quiz.Shared.Exceptions;
+
+namespace Quiz.CSharp.Api.Services;
 
 public sealed class QuestionService(
     IAnswerRepository answerRepository,
@@ -69,4 +65,23 @@ public sealed class QuestionService(
         var questions = await questionRepository.GetPreviewQuestionsAsync(collectionId, cancellationToken);
         return mapper.Map<List<QuestionResponse>>(questions);
     }
-} 
+
+    public async Task<QuestionResponse> UpdateQuestionAsync(int collectionId, int questionId, Dtos.Question.UpdateQuestion updateQuestion, CancellationToken cancellationToken)
+    {
+        var question = await questionRepository.GetSingleOrDefaultAsync(questionId, cancellationToken);
+        if (question is null)
+            throw new CustomNotFoundException($"{nameof(Question)} not found.");
+
+        var collection = await questionRepository.GetCollectionSingleOrDefaultAsync(collectionId, cancellationToken);
+        if(collection is null)
+            throw new CustomNotFoundException($"{nameof(Collection)} not found.");
+
+        var mappedQuestionModel = mapper.Map<Data.Models.UpdateQuestion>(updateQuestion);
+
+        mapper.Map(mappedQuestionModel, question);
+        question.UpdatedAt = DateTime.UtcNow;    
+        await questionRepository.UpdateQuestionAsync(question, cancellationToken);
+        
+        return mapper.Map<QuestionResponse>(question);
+    }
+}

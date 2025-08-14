@@ -32,6 +32,12 @@ public sealed class QuestionRepository(ICSharpDbContext context) : IQuestionRepo
             .OrderBy(q => q.Id)
             .Take(2)
             .ToListAsync(cancellationToken);
+    
+    public async Task<Collection?> GetCollectionSingleOrDefaultAsync(int collectionId, CancellationToken cancellationToken = default)
+    {
+        return await context.Collections
+            .FirstOrDefaultAsync(c => c.Id == collectionId && c.IsActive, cancellationToken);
+    }
 
     public async Task<Question?> GetSingleOrDefaultAsync(int questionId, CancellationToken cancellationToken = default)
         => await context.Questions
@@ -43,5 +49,11 @@ public sealed class QuestionRepository(ICSharpDbContext context) : IQuestionRepo
         context.Questions.Add(question);
         await context.SaveChangesAsync(cancellationToken);
         return question;
+    }
+    
+    public async Task UpdateQuestionAsync(Question question,CancellationToken cancellationToken = default)
+    {
+        context.Questions.Update(question);
+        await context.SaveChangesAsync(cancellationToken);
     }
 }

@@ -3,6 +3,7 @@ namespace Quiz.CSharp.Api.Mapping;
 using AutoMapper;
 using Quiz.CSharp.Api.Contracts;
 using Quiz.CSharp.Data.Entities;
+using Quiz.CSharp.Data.Models;
 using System.Text.Json;
 
 public sealed class QuestionProfile : Profile
@@ -65,7 +66,7 @@ public sealed class QuestionProfile : Profile
         public string? Input { get; set; }
         public string? ExpectedOutput { get; set; }
     }
-
+    
     public QuestionProfile()
     {
         CreateMap<Question, QuestionResponse>()
@@ -92,9 +93,59 @@ public sealed class QuestionProfile : Profile
 
         CreateMap<MCQOptionData, MCQOptionResponse>()
             .ForMember(dest => dest.Option, opt => opt.MapFrom(src => src.Text));
-            
+
         CreateMap<TestCaseData, TestCaseResponse>();
+        CreateMap<CreateQuestionRequest, MCQQuestion>();
+        CreateMap<CreateQuestionRequest, TrueFalseQuestion>();
+        CreateMap<CreateQuestionRequest, FillQuestion>();
+        CreateMap<CreateQuestionRequest, ErrorSpottingQuestion>();
+        CreateMap<CreateQuestionRequest, OutputPredictionQuestion>();
+        CreateMap<CreateQuestionRequest, CodeWritingQuestion>();
+        
+        CreateMap<Dtos.Question.UpdateQuestion, Data.Models.UpdateQuestion>();
+      
+        CreateMap<Dtos.Question.UpdateQuestionMetadataBase, Data.Models.UpdateQuestionMetadataBase>()
+          .Include<Dtos.Question.CodeWritingMetadata, Data.Models.CodeWritingMetadata>()
+          .Include<Dtos.Question.ErrorSpottingMetadata, Data.Models.ErrorSpottingMetadata>()
+          .Include<Dtos.Question.FillInTheBlankMetadata, Data.Models.FillInTheBlankMetadata>()
+          .Include<Dtos.Question.McqMetadata, Data.Models.McqMetadata>()
+          .Include<Dtos.Question.OutputPredictionMetadata, Data.Models.OutputPredictionMetadata>()
+          .Include<Dtos.Question.TrueFalseMetadata, Data.Models.TrueFalseMetadata>();   
+      
+        CreateMap<Dtos.Question.CodeWritingMetadata, Data.Models.CodeWritingMetadata>();
+        CreateMap<Dtos.Question.ErrorSpottingMetadata, Data.Models.ErrorSpottingMetadata>();
+        CreateMap<Dtos.Question.FillInTheBlankMetadata, Data.Models.FillInTheBlankMetadata>();
+        CreateMap<Dtos.Question.McqMetadata, Data.Models.McqMetadata>();
+        CreateMap<Dtos.Question.McqOptionDto, Data.Models.McqOptionDto>();
+        CreateMap<Dtos.Question.OutputPredictionMetadata, Data.Models.OutputPredictionMetadata>();
+        CreateMap<Dtos.Question.TrueFalseMetadata, Data.Models.TrueFalseMetadata>();
+        
+        CreateMap<Data.Models.UpdateQuestion, Data.Entities.Question>()
+            .ForMember(dest => dest.Metadata, opt 
+                => opt.MapFrom(src => SerializeMetadataWithHints(src.Metadata)));
     }
+    
+    private string SerializeMetadataWithHints(UpdateQuestionMetadataBase updateQuestionMetadataBase)
+    {
+        if (string.IsNullOrWhiteSpace(updateQuestionMetadataBase?.Explanation) is false)
+        {
+            updateQuestionMetadataBase.Hints =
+            [
+                new Data.Models.QuestionHint
+                {
+                    Hint = updateQuestionMetadataBase.Explanation,
+                    OrderIndex = 1
+                }
+            ];
+        }
+        
+        var options = new JsonSerializerOptions();
+        options.PropertyNamingPolicy = null;
+
+
+        return JsonSerializer.Serialize(updateQuestionMetadataBase, options);
+    }
+
 
     private static string GetQuestionType(Question question)
     {
@@ -275,4 +326,4 @@ public sealed class QuestionProfile : Profile
             return null;
         }
     }
-} 
+}

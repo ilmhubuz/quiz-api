@@ -1,15 +1,15 @@
 using Quiz.CSharp.Api.Extensions;
 using Quiz.CSharp.Data.Extensions;
 using Quiz.Infrastructure.Extensions;
-using Quiz.CSharp.Data;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Quiz.CSharp.Api.Middlewares;
 using Quiz.CSharp.Data.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddAzureAppConfiguration(builder.Configuration);
-
+ 
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
@@ -41,7 +41,7 @@ builder.Services.AddCors(options =>
 var app = builder.Build();
 
 app.UseSwaggerWithOAuth();
-
+app.UseMiddleware<ErrorHandlingMiddleware>();
 app.UseHttpsRedirection();
 app.UseCors("AllowReactApp");
 

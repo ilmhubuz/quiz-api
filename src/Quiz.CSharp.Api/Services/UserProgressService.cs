@@ -1,16 +1,13 @@
+using Quiz.CSharp.Data.Repositories.Abstractions;
+
 namespace Quiz.CSharp.Api.Services;
 
 using AutoMapper;
-using Quiz.CSharp.Api.Contracts;
-using Quiz.CSharp.Data.Repositories.Abstractions;
-using Quiz.Shared.Authentication;
-using Quiz.CSharp.Api.Services.Abstractions;
-
 public sealed class UserProgressService(
     IUserProgressRepository userProgressRepository,
     ICollectionRepository collectionRepository,
     IMapper mapper,
-    ICurrentUser currentUser) : IUserProgressService
+    ICurrentUser currentUser) : IUserProgressService, Abstractions.IUserProgressService
 {
     public async Task<List<CollectionProgressResponse>> GetUserProgressAsync(CancellationToken cancellationToken = default)
     {

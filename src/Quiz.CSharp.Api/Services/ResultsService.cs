@@ -1,12 +1,10 @@
-namespace Quiz.CSharp.Api.Services;
-
 using Quiz.CSharp.Api.Contracts.Reviews;
 using Quiz.CSharp.Data.Entities;
 using Quiz.CSharp.Data.Repositories.Abstractions;
-using Quiz.Shared.Authentication;
-using Quiz.Shared.Common;
+
+namespace Quiz.CSharp.Api.Services;
+
 using System.Text.Json;
-using Quiz.CSharp.Api.Services.Abstractions;
 
 public sealed class ResultsService(
     IAnswerRepository answerRepository,
