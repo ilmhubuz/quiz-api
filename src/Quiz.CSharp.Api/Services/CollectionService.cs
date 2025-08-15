@@ -91,4 +91,96 @@ public sealed class CollectionService(
 
         return responses;
     }
+
+    private static Question? CreateQuestionFromRequest(CreateQuestionRequest request, int collectionId)
+    {
+        var questionType = GetQuestionTypeFromString(request.Type);
+        if (questionType == null)
+            return null;
+
+        return questionType.Value switch
+        {
+            QuestionType.MCQ => new MCQQuestion
+            {
+                CollectionId = collectionId,
+                Subcategory = request.Subcategory,
+                Difficulty = request.Difficulty,
+                Prompt = request.Prompt,
+                EstimatedTimeMinutes = request.EstimatedTimeMinutes,
+                Metadata = request.Metadata,
+                CreatedAt = DateTime.UtcNow,
+                IsActive = true
+            },
+            QuestionType.TrueFalse => new TrueFalseQuestion
+            {
+                CollectionId = collectionId,
+                Subcategory = request.Subcategory,
+                Difficulty = request.Difficulty,
+                Prompt = request.Prompt,
+                EstimatedTimeMinutes = request.EstimatedTimeMinutes,
+                Metadata = request.Metadata,
+                CreatedAt = DateTime.UtcNow,
+                IsActive = true
+            },
+            QuestionType.Fill => new FillQuestion
+            {
+                CollectionId = collectionId,
+                Subcategory = request.Subcategory,
+                Difficulty = request.Difficulty,
+                Prompt = request.Prompt,
+                EstimatedTimeMinutes = request.EstimatedTimeMinutes,
+                Metadata = request.Metadata,
+                CreatedAt = DateTime.UtcNow,
+                IsActive = true
+            },
+            QuestionType.ErrorSpotting => new ErrorSpottingQuestion
+            {
+                CollectionId = collectionId,
+                Subcategory = request.Subcategory,
+                Difficulty = request.Difficulty,
+                Prompt = request.Prompt,
+                EstimatedTimeMinutes = request.EstimatedTimeMinutes,
+                Metadata = request.Metadata,
+                CreatedAt = DateTime.UtcNow,
+                IsActive = true
+            },
+            QuestionType.OutputPrediction => new OutputPredictionQuestion
+            {
+                CollectionId = collectionId,
+                Subcategory = request.Subcategory,
+                Difficulty = request.Difficulty,
+                Prompt = request.Prompt,
+                EstimatedTimeMinutes = request.EstimatedTimeMinutes,
+                Metadata = request.Metadata,
+                CreatedAt = DateTime.UtcNow,
+                IsActive = true
+            },
+            QuestionType.CodeWriting => new CodeWritingQuestion
+            {
+                CollectionId = collectionId,
+                Subcategory = request.Subcategory,
+                Difficulty = request.Difficulty,
+                Prompt = request.Prompt,
+                EstimatedTimeMinutes = request.EstimatedTimeMinutes,
+                Metadata = request.Metadata,
+                CreatedAt = DateTime.UtcNow,
+                IsActive = true
+            },
+            _ => null
+        };
+    }
+
+    private static QuestionType? GetQuestionTypeFromString(string typeString)
+    {
+        return typeString.ToLowerInvariant() switch
+        {
+            "mcq" => QuestionType.MCQ,
+            "true_false" => QuestionType.TrueFalse,
+            "fill" => QuestionType.Fill,
+            "error_spotting" => QuestionType.ErrorSpotting,
+            "output_prediction" => QuestionType.OutputPrediction,
+            "code_writing" => QuestionType.CodeWriting,
+            _ => null
+        };
+    }
 }
