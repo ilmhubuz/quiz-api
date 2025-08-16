@@ -27,7 +27,7 @@ public sealed record UserProgressManagementResponse
     public decimal CompletionRate { get; init; }
     public DateTime LastAnsweredAt { get; init; }
     public DateTime CreatedAt { get; init; }
-    public DateTime? UpdatedAt { get; init; }
+    public DateTimeOffset? UpdatedAt { get; init; }
 }
 
 public sealed record UserProgressGroupedResponse
@@ -36,8 +36,8 @@ public sealed record UserProgressGroupedResponse
     public string? Username { get; init; }
     public string? Name { get; init; }
     public string? TelegramUsername { get; init; }
-    public DateTime FirstActivityAt { get; init; }
-    public DateTime LastActivityAt { get; init; }
+    public DateTimeOffset FirstActivityAt { get; init; }
+    public DateTimeOffset LastActivityAt { get; init; }
     public int TotalCollections { get; init; }
     public int TotalQuestionsAnswered { get; init; }
     public int TotalCorrectAnswers { get; init; }
@@ -57,6 +57,6 @@ public sealed record CollectionProgressResponse
     public decimal SuccessRate { get; init; }
     public decimal CompletionRate { get; init; }
     public DateTime LastAnsweredAt { get; init; }
-    public DateTime CreatedAt { get; init; }
-    public DateTime? UpdatedAt { get; init; }
+    public DateTimeOffset CreatedAt { get; init; }
+    public DateTimeOffset? UpdatedAt { get; init; }
 }
