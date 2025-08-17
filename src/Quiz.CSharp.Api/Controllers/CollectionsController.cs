@@ -17,4 +17,14 @@ public sealed class CollectionsController(ICollectionService collectionService) 
         var collections = await collectionService.GetCollectionsAsync(cancellationToken);
         return Ok(new ApiResponse<List<CollectionResponse>>(collections));
     }
-} 
+
+    [HttpPut("{id}")]
+    [ProducesResponseType(typeof(ApiResponse<CollectionResponse>), 200)]
+    [ProducesResponseType(typeof(ApiResponse<string>), 404)]
+    public async Task<IActionResult> UpdateCollection(int id, [FromBody] UpdateCollectionRequest request,
+        CancellationToken cancellationToken)
+    {
+        var updatedCollections = await collectionService.UpdateCollectionAsync(id, request, cancellationToken);
+        return Ok(updatedCollections);
+    }
+}

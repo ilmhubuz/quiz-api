@@ -50,5 +50,10 @@ public sealed class CollectionProfile : Profile
 
         CreateMap<Collection, CreateCollectionResponse>()
             .ForMember(dest => dest.QuestionsCreated, opt => opt.Ignore());
+
+        CreateMap<Collection, UpdateCollectionResponse>()
+            .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => src.CreatedAt))
+            .ForMember(dest => dest.TotalQuestions, opt => opt.MapFrom(src => src.Questions.Count))
+            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id));
     }
 }

@@ -6,6 +6,8 @@ public interface ICollectionService
 {
     Task<List<CollectionResponse>> GetCollectionsAsync(CancellationToken cancellationToken = default);
     Task<Result<CreateCollectionResponse>> CreateCollectionWithQuestionsAsync(
-        CreateCollectionRequest request, 
+        CreateCollectionRequest request,
         CancellationToken cancellationToken = default);
-} 
+    Task<List<CollectionResponse>> UpdateCollectionAsync(int id, UpdateCollectionRequest nextRequest,
+        CancellationToken cancellationToken = default);
+}

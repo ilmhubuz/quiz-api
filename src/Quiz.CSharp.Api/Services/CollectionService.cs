@@ -136,4 +136,25 @@ public sealed class CollectionService(
             _ => null
         };
     }
-} 
+
+    public async Task<List<CollectionResponse>> UpdateCollectionAsync(
+        int id,
+        UpdateCollectionRequest nextRequest,
+        CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var collections = await collectionRepository.UpdateCollectionAsync(
+                id,
+                mapper.Map<Collection>(nextRequest),
+                cancellationToken);
+
+            return collections.Select(c => mapper.Map<CollectionResponse>(c)).ToList();
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Error updating collection {Id}", id);
+            throw;
+        }
+    }
+}
