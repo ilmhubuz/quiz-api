@@ -59,6 +59,43 @@ public sealed class CollectionService(
         if (string.IsNullOrWhiteSpace(collection.Code))
         {
             return Task.FromResult(Result<CreateCollectionResponse>.Failure("Collection code cannot be empty."));
+        try
+        {
+            // Validate collection doesn't already exist
+            if (await collectionRepository.CollectionExistsAsync(request.Code, cancellationToken))
+            {
+                return Result<CreateCollectionResponse>.Failure($"Collection with code '{request.Code}' already exists");
+            }
+
+            // Create collection entity
+            var collection = mapper.Map<Collection>(request);
+
+            // Save collection first to get the ID
+            var createdCollection = await collectionRepository.CreateCollectionAsync(collection, cancellationToken);
+
+            // Create questions
+            var questionsCreated = 0;
+            foreach (var questionRequest in request.Questions)
+            {
+                var question = CreateQuestionFromRequest(questionRequest, createdCollection.Id, mapper);
+                if (question != null)
+                {
+                    await questionRepository.CreateQuestionAsync(question, cancellationToken);
+                    questionsCreated++;
+                }
+                else
+                {
+                    logger.LogWarning("Failed to create question of type {Type}", questionRequest.Type);
+                }
+            }
+
+            logger.LogInformation("Created collection {Code} with {QuestionCount} questions", 
+                request.Code, questionsCreated);
+
+            var response = mapper.Map<CreateCollectionResponse>(createdCollection);
+            response.QuestionsCreated = questionsCreated;
+
+            return Result<CreateCollectionResponse>.Success(response);
         }
 
         if (collectionRepository.CollectionExistsAsync(collection.Code, cancellationToken).GetAwaiter().GetResult())
@@ -77,6 +114,7 @@ public sealed class CollectionService(
         int id,
         UpdateCollectionRequest nextRequest,
         CancellationToken cancellationToken = default)
+    private static Question? CreateQuestionFromRequest(CreateQuestionRequest request, int collectionId, IMapper mapper)
     {
         var entity = mapper.Map<Collection>(nextRequest);
 
@@ -94,6 +132,22 @@ public sealed class CollectionService(
                     currentUser.UserId,
                     collection.Id,
                     cancellationToken);
+
+        Question? question = questionType.Value switch
+        {
+            QuestionType.MCQ => mapper.Map<MCQQuestion>(request),
+            QuestionType.TrueFalse=> mapper.Map<TrueFalseQuestion>(request),
+            QuestionType.Fill=> mapper.Map<FillQuestion>(request),
+            QuestionType.ErrorSpotting=> mapper.Map<ErrorSpottingQuestion>(request),
+            QuestionType.OutputPrediction=> mapper.Map<OutputPredictionQuestion>(request),
+             QuestionType.CodeWriting=> mapper.Map<CodeWritingQuestion>(request),
+            _ => null
+        };
+
+        if (question is not null)
+            question.CollectionId = collectionId;
+        return question;
+    }
 
                 if (userProgress is not null)
                 {
