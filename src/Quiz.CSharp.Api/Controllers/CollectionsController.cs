@@ -18,6 +18,21 @@ public sealed class CollectionsController(ICollectionService collectionService) 
         return Ok(new ApiResponse<List<CollectionResponse>>(collections));
     }
 
+    [HttpPost]
+    [ProducesResponseType(typeof(ApiResponse<CreateCollectionResponse>), 201)]
+    [ProducesResponseType(typeof(ApiResponse<string>), 400)]
+    public async Task<IActionResult> CreateCollectionWithQuestions(
+        [FromBody] CreateCollectionRequest request,
+        CancellationToken cancellationToken)
+    {
+        var result = await collectionService.CreateCollectionWithQuestionsAsync(request, cancellationToken);
+        if (result.IsSuccess)
+        {
+            return CreatedAtAction(nameof(GetCollections), new { }, result.Value);
+        }
+        return BadRequest(new ApiResponse<string>(result.ErrorMessage));
+    }
+
     [HttpPut("{id}")]
     [ProducesResponseType(typeof(ApiResponse<CollectionResponse>), 200)]
     [ProducesResponseType(typeof(ApiResponse<string>), 404)]

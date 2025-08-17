@@ -17,10 +17,6 @@ public sealed class CollectionService(
     ICurrentUser currentUser,
     ILogger<CollectionService> logger) : ICollectionService
 {
-    public Task<Result<CreateCollectionResponse>> CreateCollectionWithQuestionsAsync(CreateCollectionRequest request, CancellationToken cancellationToken = default)
-    {
-        throw new NotImplementedException();
-    }
 
     public async Task<List<CollectionResponse>> GetCollectionsAsync(CancellationToken cancellationToken = default)
     {
@@ -32,7 +28,6 @@ public sealed class CollectionService(
             var response = mapper.Map<CollectionResponse>(collectionWithCount.Collection);
             response = response with { TotalQuestions = collectionWithCount.QuestionCount };
 
-            // Add user progress if authenticated
             if (currentUser.IsAuthenticated && currentUser.UserId is not null)
             {
                 var userProgress = await userProgressRepository.GetUserProgressOrDefaultAsync(
@@ -55,10 +50,33 @@ public sealed class CollectionService(
         return responses;
     }
 
+    public Task<Result<CreateCollectionResponse>> CreateCollectionWithQuestionsAsync(
+        CreateCollectionRequest request,
+        CancellationToken cancellationToken = default)
+    {
+        var collection = mapper.Map<Collection>(request);
+
+        if (string.IsNullOrWhiteSpace(collection.Code))
+        {
+            return Task.FromResult(Result<CreateCollectionResponse>.Failure("Collection code cannot be empty."));
+        }
+
+        if (collectionRepository.CollectionExistsAsync(collection.Code, cancellationToken).GetAwaiter().GetResult())
+        {
+            return Task.FromResult(Result<CreateCollectionResponse>.Failure("Collection with this code already exists."));
+        }
+
+        var createdCollection = collectionRepository.CreateCollectionAsync(collection, cancellationToken).GetAwaiter().GetResult();
+
+        var response = mapper.Map<CreateCollectionResponse>(createdCollection);
+
+        return Task.FromResult(Result<CreateCollectionResponse>.Success(response));
+    }
+
     public async Task<List<CollectionResponse>> UpdateCollectionAsync(
-    int id,
-    UpdateCollectionRequest nextRequest,
-    CancellationToken cancellationToken = default)
+        int id,
+        UpdateCollectionRequest nextRequest,
+        CancellationToken cancellationToken = default)
     {
         var entity = mapper.Map<Collection>(nextRequest);
 
@@ -90,97 +108,5 @@ public sealed class CollectionService(
         }
 
         return responses;
-    }
-
-    private static Question? CreateQuestionFromRequest(CreateQuestionRequest request, int collectionId)
-    {
-        var questionType = GetQuestionTypeFromString(request.Type);
-        if (questionType == null)
-            return null;
-
-        return questionType.Value switch
-        {
-            QuestionType.MCQ => new MCQQuestion
-            {
-                CollectionId = collectionId,
-                Subcategory = request.Subcategory,
-                Difficulty = request.Difficulty,
-                Prompt = request.Prompt,
-                EstimatedTimeMinutes = request.EstimatedTimeMinutes,
-                Metadata = request.Metadata,
-                CreatedAt = DateTime.UtcNow,
-                IsActive = true
-            },
-            QuestionType.TrueFalse => new TrueFalseQuestion
-            {
-                CollectionId = collectionId,
-                Subcategory = request.Subcategory,
-                Difficulty = request.Difficulty,
-                Prompt = request.Prompt,
-                EstimatedTimeMinutes = request.EstimatedTimeMinutes,
-                Metadata = request.Metadata,
-                CreatedAt = DateTime.UtcNow,
-                IsActive = true
-            },
-            QuestionType.Fill => new FillQuestion
-            {
-                CollectionId = collectionId,
-                Subcategory = request.Subcategory,
-                Difficulty = request.Difficulty,
-                Prompt = request.Prompt,
-                EstimatedTimeMinutes = request.EstimatedTimeMinutes,
-                Metadata = request.Metadata,
-                CreatedAt = DateTime.UtcNow,
-                IsActive = true
-            },
-            QuestionType.ErrorSpotting => new ErrorSpottingQuestion
-            {
-                CollectionId = collectionId,
-                Subcategory = request.Subcategory,
-                Difficulty = request.Difficulty,
-                Prompt = request.Prompt,
-                EstimatedTimeMinutes = request.EstimatedTimeMinutes,
-                Metadata = request.Metadata,
-                CreatedAt = DateTime.UtcNow,
-                IsActive = true
-            },
-            QuestionType.OutputPrediction => new OutputPredictionQuestion
-            {
-                CollectionId = collectionId,
-                Subcategory = request.Subcategory,
-                Difficulty = request.Difficulty,
-                Prompt = request.Prompt,
-                EstimatedTimeMinutes = request.EstimatedTimeMinutes,
-                Metadata = request.Metadata,
-                CreatedAt = DateTime.UtcNow,
-                IsActive = true
-            },
-            QuestionType.CodeWriting => new CodeWritingQuestion
-            {
-                CollectionId = collectionId,
-                Subcategory = request.Subcategory,
-                Difficulty = request.Difficulty,
-                Prompt = request.Prompt,
-                EstimatedTimeMinutes = request.EstimatedTimeMinutes,
-                Metadata = request.Metadata,
-                CreatedAt = DateTime.UtcNow,
-                IsActive = true
-            },
-            _ => null
-        };
-    }
-
-    private static QuestionType? GetQuestionTypeFromString(string typeString)
-    {
-        return typeString.ToLowerInvariant() switch
-        {
-            "mcq" => QuestionType.MCQ,
-            "true_false" => QuestionType.TrueFalse,
-            "fill" => QuestionType.Fill,
-            "error_spotting" => QuestionType.ErrorSpotting,
-            "output_prediction" => QuestionType.OutputPrediction,
-            "code_writing" => QuestionType.CodeWriting,
-            _ => null
-        };
     }
 }
