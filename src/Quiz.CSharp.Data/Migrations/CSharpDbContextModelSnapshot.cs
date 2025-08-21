@@ -4,7 +4,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
-using Quiz.CSharp.Data;
 using Quiz.CSharp.Data.Data;
 
 #nullable disable
@@ -38,7 +37,7 @@ namespace Quiz.CSharp.Data.Migrations
                         .HasColumnType("character varying(100)")
                         .HasColumnName("code");
 
-                    b.Property<DateTime>("CreatedAt")
+                    b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
 
@@ -68,7 +67,7 @@ namespace Quiz.CSharp.Data.Migrations
                         .HasColumnType("character varying(200)")
                         .HasColumnName("title");
 
-                    b.Property<DateTime?>("UpdatedAt")
+                    b.Property<DateTimeOffset?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated_at");
 
@@ -101,7 +100,7 @@ namespace Quiz.CSharp.Data.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("collection_id");
 
-                    b.Property<DateTime>("CreatedAt")
+                    b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
 
@@ -136,7 +135,7 @@ namespace Quiz.CSharp.Data.Migrations
                         .HasColumnType("character varying(200)")
                         .HasColumnName("subcategory");
 
-                    b.Property<DateTime?>("UpdatedAt")
+                    b.Property<DateTimeOffset?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated_at");
 
@@ -177,7 +176,7 @@ namespace Quiz.CSharp.Data.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("attempt_number");
 
-                    b.Property<DateTime>("CreatedAt")
+                    b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
 
@@ -201,7 +200,7 @@ namespace Quiz.CSharp.Data.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("time_spent_seconds");
 
-                    b.Property<DateTime?>("UpdatedAt")
+                    b.Property<DateTimeOffset?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated_at");
 
@@ -245,7 +244,7 @@ namespace Quiz.CSharp.Data.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("correct_answers");
 
-                    b.Property<DateTime>("CreatedAt")
+                    b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
 
@@ -276,7 +275,7 @@ namespace Quiz.CSharp.Data.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("total_questions");
 
-                    b.Property<DateTime?>("UpdatedAt")
+                    b.Property<DateTimeOffset?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated_at");
 
