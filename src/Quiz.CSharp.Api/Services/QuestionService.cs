@@ -1,3 +1,5 @@
+using Quiz.CSharp.Api.Contracts.Dto;
+
 namespace Quiz.CSharp.Api.Services;
 
 using AutoMapper;
@@ -114,5 +116,23 @@ public sealed class QuestionService(
             "code_writing" => QuestionType.CodeWriting,
             _ => null
         };
+    }
+    
+    public async Task<Result<UpdateQuestionResponse>> UpdateQuestionAsync(
+        int collectionId,
+        UpdateQuestionModel model, 
+        CancellationToken cancellationToken)
+    {
+        if (await collectionRepository.ExistAsync(collectionId, cancellationToken) is false)
+            throw new CustomNotFoundException($"{nameof(Collection)} with {collectionId} id doesn't exist");
+        
+        var question = await questionRepository.GetSingleOrDefaultAsync(model.Id, cancellationToken)
+            ?? throw new CustomNotFoundException($"{nameof(Question)} not found.");
+        
+        mapper.Map(model, question);
+        question.UpdatedAt = DateTime.UtcNow;    
+        await questionRepository.QuestionSaveChangesAsyncAsync(cancellationToken);
+        
+        return Result<UpdateQuestionResponse>.Success( mapper.Map<UpdateQuestionResponse>(question));
     }
 } 

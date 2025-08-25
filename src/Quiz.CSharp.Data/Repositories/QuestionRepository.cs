@@ -44,4 +44,9 @@ public sealed class QuestionRepository(ICSharpDbContext context) : IQuestionRepo
         await context.SaveChangesAsync(cancellationToken);
         return question;
     }
+    
+    public async Task QuestionSaveChangesAsyncAsync(CancellationToken cancellationToken = default)
+    {
+        await context.SaveChangesAsync(cancellationToken);
+    }
 }

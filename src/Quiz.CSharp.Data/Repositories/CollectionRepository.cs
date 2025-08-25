@@ -5,6 +5,9 @@ namespace Quiz.CSharp.Data.Repositories;
 
 public sealed class CollectionRepository(ICSharpDbContext context) : ICollectionRepository
 {
+    public async Task<Entities.Collection?> GetSingleOrDefaultWithOutIncludeAsync(int collectionId, CancellationToken cancellationToken = default)
+        => await context.Collections.FirstOrDefaultAsync(q => q.Id == collectionId, cancellationToken);
+    
     public async Task<IReadOnlyList<Collection>> GetCollectionsAsync(CancellationToken cancellationToken = default)
         => await context.Collections
             .Where(c => c.IsActive)

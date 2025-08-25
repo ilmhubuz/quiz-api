@@ -1,3 +1,6 @@
+using System.Security.Authentication.ExtendedProtection;
+using Quiz.CSharp.Api.Contracts.Dto;
+
 namespace Quiz.CSharp.Api.Mapping;
 
 using AutoMapper;
@@ -110,6 +113,47 @@ public sealed class QuestionProfile : Profile
         CreateMap<CreateQuestionModel, CodeWritingQuestion>();
         CreateMap<Question, CreateQuestionResponse>()
             .ForMember(dest => dest.Type, opt => opt.MapFrom(src => GetQuestionType(src)));
+        
+        CreateMap<UpdateQuestionDto, UpdateQuestionModel>();
+        CreateMap<Contracts.Dto.UpdateQuestionMetadataBase, Data.Models.UpdateQuestionMetadataBase>()
+            .Include<Contracts.Dto.CodeWritingMetadata, Data.Models.CodeWritingMetadata>()
+            .Include<Contracts.Dto.ErrorSpottingMetadata, Data.Models.ErrorSpottingMetadata>()
+            .Include<Contracts.Dto.FillMetadata, Data.Models.FillMetadata>()
+            .Include<Contracts.Dto.McqMetadata, Data.Models.McqMetadata>()
+            .Include<Contracts.Dto.OutputPredictionMetadata, Data.Models.OutputPredictionMetadata>()
+            .Include<Contracts.Dto.TrueFalseMetadata, Data.Models.TrueFalseMetadata>();   
+      
+        CreateMap<Contracts.Dto.CodeWritingMetadata, Data.Models.CodeWritingMetadata>();
+        CreateMap<Contracts.Dto.ErrorSpottingMetadata, Data.Models.ErrorSpottingMetadata>();
+        CreateMap<Contracts.Dto.FillMetadata, Data.Models.FillMetadata>();
+        CreateMap<Contracts.Dto.McqMetadata, Data.Models.McqMetadata>();
+        CreateMap<Contracts.Dto.McqOptionDto, Data.Models.McqOptionDto>();
+        CreateMap<Contracts.Dto.OutputPredictionMetadata, Data.Models.OutputPredictionMetadata>();
+        CreateMap<Contracts.Dto.TrueFalseMetadata, Data.Models.TrueFalseMetadata>();
+        
+        CreateMap<Data.Models.UpdateQuestionModel, Data.Entities.Question>()
+            .ForMember(dest => dest.Metadata, opt 
+                => opt.MapFrom(src => SerializeMetadataWithHints(src.Metadata)));
+        
+        CreateMap<Question, UpdateQuestionResponse>()
+            .ForMember(dest => dest.Type, opt => opt.MapFrom(src => GetQuestionType(src)));
+    }
+    
+    private string SerializeMetadataWithHints(UpdateQuestionMetadataBase updateQuestionMetadataBase)
+    {
+        if (string.IsNullOrWhiteSpace(updateQuestionMetadataBase?.Explanation) is false)
+        {
+            updateQuestionMetadataBase.Hints =
+            [
+                new Data.Models.QuestionHint
+                {
+                    Hint = updateQuestionMetadataBase.Explanation,
+                    OrderIndex = 1
+                }
+            ];
+        }
+        var options = new JsonSerializerOptions { PropertyNamingPolicy = null };
+        return JsonSerializer.Serialize(updateQuestionMetadataBase, options);
     }
 
     private static string GetQuestionType(Question question)

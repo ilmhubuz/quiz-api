@@ -13,4 +13,9 @@ public interface IQuestionService
         CancellationToken cancellationToken = default);
     Task<List<QuestionResponse>> GetPreviewQuestionsAsync(int collectionId, CancellationToken cancellationToken = default);
     Task<Result<CreateQuestionResponse>> CreateQuestionAsync(CreateQuestionModel model, CancellationToken cancellationToken = default);
+
+    Task<Result<UpdateQuestionResponse>> UpdateQuestionAsync(
+        int collectionId,
+        UpdateQuestionModel model,
+        CancellationToken cancellationToken);
 } 
