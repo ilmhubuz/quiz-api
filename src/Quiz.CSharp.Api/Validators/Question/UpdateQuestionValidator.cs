@@ -15,11 +15,6 @@ public class UpdateQuestionValidator : AbstractValidator<UpdateQuestion>
         RuleFor(q => q.Prompt)
             .NotEmpty().WithMessage("Prompt is required.");
 
-        /*RuleFor(q => q.QuestionType)
-            .NotEmpty().WithMessage("Question type is required.")
-            .Must(IsSupportedQuestionType)
-            .WithMessage("Invalid question type.");*/
-
         RuleFor(q => q.Metadata)
             .NotNull().WithMessage("Metadata is required.")
             .SetInheritanceValidator(v =>

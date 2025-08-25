@@ -3,13 +3,12 @@ using Quiz.CSharp.Data.Extensions;
 using Quiz.Infrastructure.Extensions;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using Quiz.CSharp.Api.Middlewares;
 using Quiz.CSharp.Data.Data;
+using Quiz.Infrastructure.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddAzureAppConfiguration(builder.Configuration);
- 
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
@@ -40,8 +39,10 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
+app.UseMiddleware<ExceptionHandlingMiddleware>();
+app.UseRouting();
 app.UseSwaggerWithOAuth();
-app.UseMiddleware<ErrorHandlingMiddleware>();
+
 app.UseHttpsRedirection();
 app.UseCors("AllowReactApp");
 

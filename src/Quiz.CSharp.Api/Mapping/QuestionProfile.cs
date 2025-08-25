@@ -8,7 +8,6 @@ using System.Text.Json;
 
 public sealed class QuestionProfile : Profile
 {
-    // Internal metadata classes for deserialization
     private class QuestionMetadataBase
     {
         public string? CodeBefore { get; set; }
@@ -66,7 +65,7 @@ public sealed class QuestionProfile : Profile
         public string? Input { get; set; }
         public string? ExpectedOutput { get; set; }
     }
-    
+
     public QuestionProfile()
     {
         CreateMap<Question, QuestionResponse>()
@@ -101,6 +100,16 @@ public sealed class QuestionProfile : Profile
         CreateMap<CreateQuestionRequest, ErrorSpottingQuestion>();
         CreateMap<CreateQuestionRequest, OutputPredictionQuestion>();
         CreateMap<CreateQuestionRequest, CodeWritingQuestion>();
+
+        CreateMap<CreateQuestionDto, CreateQuestionModel>();
+        CreateMap<CreateQuestionModel, MCQQuestion>();
+        CreateMap<CreateQuestionModel, TrueFalseQuestion>();
+        CreateMap<CreateQuestionModel, FillQuestion>();
+        CreateMap<CreateQuestionModel, ErrorSpottingQuestion>();
+        CreateMap<CreateQuestionModel, OutputPredictionQuestion>();
+        CreateMap<CreateQuestionModel, CodeWritingQuestion>();
+        CreateMap<Question, CreateQuestionResponse>()
+            .ForMember(dest => dest.Type, opt => opt.MapFrom(src => GetQuestionType(src)));
         
         CreateMap<Dtos.Question.UpdateQuestion, Data.Models.UpdateQuestion>();
       
@@ -326,4 +335,4 @@ public sealed class QuestionProfile : Profile
             return null;
         }
     }
-}
+} 

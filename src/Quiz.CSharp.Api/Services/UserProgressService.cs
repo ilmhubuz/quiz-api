@@ -7,7 +7,7 @@ public sealed class UserProgressService(
     IUserProgressRepository userProgressRepository,
     ICollectionRepository collectionRepository,
     IMapper mapper,
-    ICurrentUser currentUser) : IUserProgressService, Abstractions.IUserProgressService
+    ICurrentUser currentUser) : IUserProgressService
 {
     public async Task<List<CollectionProgressResponse>> GetUserProgressAsync(CancellationToken cancellationToken = default)
     {
@@ -22,6 +22,7 @@ public sealed class UserProgressService(
                     responses.Add(mapper.Map<CollectionProgressResponse>(userProgress));
             }
         }
+        
         return responses;
     }
 } 

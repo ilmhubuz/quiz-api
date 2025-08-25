@@ -1,5 +1,5 @@
 using Microsoft.Extensions.Logging;
-using Quiz.Shared.Exceptions;
+using Quiz.Infrastructure.Exceptions;
 
 namespace Quiz.CSharp.Api.Middlewares;
 

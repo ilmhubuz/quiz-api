@@ -6,7 +6,6 @@ using Quiz.CSharp.Api.Services.Abstractions;
 
 public sealed class AnswerValidator : IAnswerValidator
 {
-    // Internal metadata classes matching the structure from DataSeedingService
     private class MCQMetadata
     {
         public List<MCQOptionData> Options { get; set; } = [];
@@ -90,9 +89,8 @@ public sealed class AnswerValidator : IAnswerValidator
             if (metadata == null) return false;
 
             if (bool.TryParse(userAnswer, out var parsed))
-            {
                 return parsed == metadata.CorrectAnswer;
-            }
+
             return false;
         }
         catch
@@ -149,9 +147,5 @@ public sealed class AnswerValidator : IAnswerValidator
     }
 
     private static bool ValidateCodeWritingAnswer(CodeWritingQuestion question, string userAnswer)
-    {
-        // For code writing questions, we just check if an answer was provided
-        // In a real scenario, you might run tests or use more sophisticated validation
-        return !string.IsNullOrWhiteSpace(userAnswer);
-    }
+        => string.IsNullOrWhiteSpace(userAnswer) is false;
 } 
