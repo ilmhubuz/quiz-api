@@ -1,0 +1,14 @@
+
+// true_false
+{
+  "Hints": [
+    {
+      "Hint": "Yolg'on. LinkedList<T> sequential access collection bo'lib, indexer operator [] ga ega emas. Random access uchun List<T> ishlatiladi.",
+      "OrderIndex": 1
+    }
+  ],
+  "CodeAfter": "",
+  "CodeBefore": "",
+  "Explanation": "Yolg'on. LinkedList<T> sequential access collection bo'lib, indexer operator [] ga ega emas. Random access uchun List<T> ishlatiladi.",
+  "CorrectAnswer": false
+}

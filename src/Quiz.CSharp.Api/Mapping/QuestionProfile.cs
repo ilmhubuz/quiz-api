@@ -110,7 +110,51 @@ public sealed class QuestionProfile : Profile
         CreateMap<CreateQuestionModel, CodeWritingQuestion>();
         CreateMap<Question, CreateQuestionResponse>()
             .ForMember(dest => dest.Type, opt => opt.MapFrom(src => GetQuestionType(src)));
+        
+        CreateMap<Dtos.Question.UpdateQuestion, Data.Models.UpdateQuestion>();
+      
+        CreateMap<Dtos.Question.UpdateQuestionMetadataBase, Data.Models.UpdateQuestionMetadataBase>()
+          .Include<Dtos.Question.CodeWritingMetadata, Data.Models.CodeWritingMetadata>()
+          .Include<Dtos.Question.ErrorSpottingMetadata, Data.Models.ErrorSpottingMetadata>()
+          .Include<Dtos.Question.FillInTheBlankMetadata, Data.Models.FillInTheBlankMetadata>()
+          .Include<Dtos.Question.McqMetadata, Data.Models.McqMetadata>()
+          .Include<Dtos.Question.OutputPredictionMetadata, Data.Models.OutputPredictionMetadata>()
+          .Include<Dtos.Question.TrueFalseMetadata, Data.Models.TrueFalseMetadata>();   
+      
+        CreateMap<Dtos.Question.CodeWritingMetadata, Data.Models.CodeWritingMetadata>();
+        CreateMap<Dtos.Question.ErrorSpottingMetadata, Data.Models.ErrorSpottingMetadata>();
+        CreateMap<Dtos.Question.FillInTheBlankMetadata, Data.Models.FillInTheBlankMetadata>();
+        CreateMap<Dtos.Question.McqMetadata, Data.Models.McqMetadata>();
+        CreateMap<Dtos.Question.McqOptionDto, Data.Models.McqOptionDto>();
+        CreateMap<Dtos.Question.OutputPredictionMetadata, Data.Models.OutputPredictionMetadata>();
+        CreateMap<Dtos.Question.TrueFalseMetadata, Data.Models.TrueFalseMetadata>();
+        
+        CreateMap<Data.Models.UpdateQuestion, Data.Entities.Question>()
+            .ForMember(dest => dest.Metadata, opt 
+                => opt.MapFrom(src => SerializeMetadataWithHints(src.Metadata)));
     }
+    
+    private string SerializeMetadataWithHints(UpdateQuestionMetadataBase updateQuestionMetadataBase)
+    {
+        if (string.IsNullOrWhiteSpace(updateQuestionMetadataBase?.Explanation) is false)
+        {
+            updateQuestionMetadataBase.Hints =
+            [
+                new Data.Models.QuestionHint
+                {
+                    Hint = updateQuestionMetadataBase.Explanation,
+                    OrderIndex = 1
+                }
+            ];
+        }
+        
+        var options = new JsonSerializerOptions();
+        options.PropertyNamingPolicy = null;
+
+
+        return JsonSerializer.Serialize(updateQuestionMetadataBase, options);
+    }
+
 
     private static string GetQuestionType(Question question)
     {

@@ -13,4 +13,6 @@ public interface IQuestionService
         CancellationToken cancellationToken = default);
     Task<List<QuestionResponse>> GetPreviewQuestionsAsync(int collectionId, CancellationToken cancellationToken = default);
     Task<Result<CreateQuestionResponse>> CreateQuestionAsync(CreateQuestionModel model, CancellationToken cancellationToken = default);
-} 
+    Task<QuestionResponse> UpdateQuestionAsync(int collectionId, int questionId, Dtos.Question.UpdateQuestion updateQuestion,
+        CancellationToken cancellationToken);
+}

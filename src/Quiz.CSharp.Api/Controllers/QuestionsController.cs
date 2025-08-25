@@ -60,4 +60,17 @@ public sealed class QuestionsController(
         var response = await questionService.CreateQuestionAsync(mapper.Map<CreateQuestionModel>(request), cancellationToken);
         return Ok(new ApiResponse<CreateQuestionResponse>(response.Value));
     }
+    
+    [HttpPut("{collectionId}/{questionId}")]
+    [Authorize(Policy = "Admin:Write")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<IActionResult> UpdateQuestion(
+        [FromRoute] int collectionId,
+        [FromRoute] int questionId,
+        [FromBody] Dtos.Question.UpdateQuestion updateQuestion,
+        CancellationToken cancellationToken)
+    {
+        var updatedQuestion = await questionService.UpdateQuestionAsync(collectionId, questionId, updateQuestion, cancellationToken);
+        return Ok(updatedQuestion);
+    }
 } 

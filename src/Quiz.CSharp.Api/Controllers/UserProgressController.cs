@@ -1,3 +1,5 @@
+using IUserProgressService = Quiz.CSharp.Api.Services.Abstractions.IUserProgressService;
+
 namespace Quiz.CSharp.Api.Controllers;
 
 using Microsoft.AspNetCore.Mvc;
